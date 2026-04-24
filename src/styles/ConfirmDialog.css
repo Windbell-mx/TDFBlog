@@ -1,0 +1,124 @@
+/* 确认对话框样式 */
+.confirm-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.confirm-dialog {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
+  width: 90%;
+  animation: slideIn 0.3s ease-out;
+}
+
+.confirm-dialog-header {
+  padding: 20px 24px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.confirm-dialog-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.confirm-dialog-body {
+  padding: 24px;
+}
+
+.confirm-dialog-body p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+.confirm-dialog-actions {
+  padding: 0 24px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.confirm-dialog-button {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirm-dialog-button.cancel {
+  background-color: white;
+  color: #4b5563;
+}
+
+.confirm-dialog-button.cancel:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.confirm-dialog-button.confirm {
+  background-color: #ef4444;
+  color: white;
+  border-color: #ef4444;
+}
+
+.confirm-dialog-button.confirm:hover {
+  background-color: #dc2626;
+  border-color: #dc2626;
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+  .confirm-dialog {
+    width: 95%;
+  }
+
+  .confirm-dialog-header {
+    padding: 16px 20px 0;
+  }
+
+  .confirm-dialog-body {
+    padding: 20px;
+  }
+
+  .confirm-dialog-actions {
+    padding: 0 20px 20px;
+  }
+}

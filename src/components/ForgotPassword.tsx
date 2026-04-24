@@ -1,0 +1,102 @@
+import { useState } from 'react';
+import '../styles/Login.css';
+import { userApi, HttpError } from '../services/api';
+
+interface ForgotPasswordProps {
+  onBack: () => void;
+}
+
+const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+    setMessage('');
+
+    if (!email) {
+      setError('请输入邮箱地址');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      await userApi.forgotPassword(email);
+      setMessage('如果邮箱存在，重置密码链接已发送（请查看控制台）');
+    } catch (err: any) {
+      console.error('忘记密码请求失败:', err);
+      if (err instanceof HttpError) {
+        setError(`请求失败，请稍后重试。错误码: ${err.status}`);
+      } else {
+        setError('网络错误，请检查网络连接后重试。');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="login-container">
+      <div className="animation-side" onClick={onBack} style={{ cursor: 'pointer' }}>
+        <div className="animation-content">
+          <h2>忘记密码？</h2>
+          <p>没关系，我们来帮您找回</p>
+          <div className="animation-elements">
+            <div className="circle"></div>
+            <div className="square"></div>
+            <div className="triangle"></div>
+          </div>
+        </div>
+      </div>
+      <div className="form-side">
+        <div className="login-card">
+          <div className="login-header">
+            <h1>找回密码</h1>
+            <p>输入您的注册邮箱</p>
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+          {message && <div className="success-message">{message}</div>}
+
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="form-group">
+              <label htmlFor="email">邮箱</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="请输入注册时的邮箱"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="login-button"
+              disabled={isLoading}
+            >
+              {isLoading ? '发送中...' : '发送重置链接'}
+            </button>
+
+            <div className="login-footer">
+              <p>
+                想起密码了？
+                <button onClick={onBack} className="toggle-button">
+                  返回登录
+                </button>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ForgotPassword;

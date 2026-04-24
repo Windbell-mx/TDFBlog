@@ -1,0 +1,209 @@
+.app {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.fancy-collect-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background: white;
+  color: #666;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.fancy-collect-btn:hover:not(:disabled) {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
+  transform: translateY(-1px);
+}
+
+.fancy-collect-btn.collected {
+  border-color: #ff6b6b;
+  background: #fff0f0;
+  color: #ff6b6b;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.15);
+}
+
+.fancy-collect-btn.collected:hover:not(:disabled) {
+  background: #ffe0e0;
+}
+
+.fancy-collect-btn.loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.collect-icon {
+  font-size: 16px;
+}
+
+.collect-text {
+  white-space: nowrap;
+}
+
+.article-detail-container {
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding: 20px;
+}
+
+.article-detail-wrapper {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.article-detail-header {
+  margin-bottom: 20px;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  color: #555;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+.back-arrow {
+  font-weight: bold;
+}
+
+.article-detail-main {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.article-detail-heading {
+  padding: 32px 40px 24px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.article-category-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  background: #e8eaff;
+  color: #5c6bc0;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.article-detail-title {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #1a1a1a;
+  margin: 0 0 20px;
+}
+
+.article-meta-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.article-author-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.author-avatar-large {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.author-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.author-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.article-date {
+  font-size: 12px;
+  color: #999;
+}
+
+.article-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.article-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #888;
+  font-size: 13px;
+}
+
+.stat-icon {
+  font-size: 14px;
+}
+
+.article-action-bar {
+  padding: 20px 40px;
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.article-detail-content {
+  padding: 32px 40px 40px;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #333;
+}
+
+.article-detail-content h1 { font-size: 24px; font-weight: 600; margin: 28px 0 14px; color: #1a1a1a; }
+.article-detail-content h2 { font-size: 20px; font-weight: 600; margin: 24px 0 12px; color: #1a1a1a; }
+.article-detail-content h3 { font-size: 17px; font-weight: 600; margin: 20px 0 10px; color: #1a1a1a; }
+.article-detail-content p { margin: 0 0 14px; }
+.article-detail-content ul, .article-detail-content ol { margin: 0 0 14px; padding-left: 22px; }
+.article-detail-content li { margin: 6px 0; }
+.article-detail-content code { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+.article-detail-content pre { background: #f8f8f8; padding: 14px; border-radius: 8px; overflow-x: auto; margin: 14px 0; }
+.article-detail-content pre code { background: none; padding: 0; }
+.article-detail-content blockquote { border-left: 3px solid #5c6bc0; padding: 12px 16px; margin: 18px 0; background: #f8f9ff; border-radius: 0 6px 6px 0; color: #555; }
+
+@media (max-width: 768px) {
+  .article-detail-container { padding: 12px; }
+  .article-detail-heading { padding: 24px 20px 18px; }
+  .article-detail-title { font-size: 22px; }
+  .article-action-bar { padding: 16px 20px; }
+  .article-detail-content { padding: 24px 20px 30px; font-size: 14px; }
+  .article-meta-section { flex-direction: column; align-items: flex-start; gap: 14px; }
+}

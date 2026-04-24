@@ -1,0 +1,423 @@
+/* 笔记编辑页面样式 */
+
+/* 全局样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #f5f7fa;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* 主页面容器 */
+.create-note-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+
+/* 顶部导航栏 */
+.create-note-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.create-note-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.public-toggle {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.public-toggle label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.public-toggle input[type="radio"] {
+  accent-color: white;
+  cursor: pointer;
+}
+
+.preview-button, .save-button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.preview-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.preview-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.save-button {
+  background: white;
+  color: #667eea;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+}
+
+.save-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+}
+
+.save-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 元信息区域 */
+.note-meta-section {
+  padding: 2rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.meta-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.meta-section {
+  margin-bottom: 1.5rem;
+}
+
+.meta-section:last-child {
+  margin-bottom: 0;
+}
+
+.meta-section label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.title-input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.title-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.meta-row {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.meta-item {
+  flex: 1;
+}
+
+.tags-item {
+  flex: 2;
+}
+
+.category-select {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.category-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* 标签输入 */
+.tag-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.8rem;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  min-height: 48px;
+  align-items: center;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  background: white;
+}
+
+.tag-input-container:focus-within {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.2s ease;
+}
+
+.tag:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.tag-remove:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.tag-input-wrapper {
+  flex: 1;
+  min-width: 200px;
+}
+
+.tag-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  padding: 0;
+  background: transparent;
+}
+
+/* 编辑器区域 */
+.editor-wrapper {
+  flex: 1;
+  padding: 2rem;
+}
+
+.editor-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* wangEditor 工具栏 */
+.wangeditor-toolbar {
+  position: relative;
+  z-index: 10000;
+}
+
+/* wangEditor 内容区域 */
+.wangeditor-content {
+  position: relative;
+}
+
+/* 确保 wangEditor 下拉框不被截断 */
+.w-e-toolbar {
+  z-index: 10000 !important;
+  position: relative !important;
+}
+
+.w-e-dropdown {
+  z-index: 20000 !important;
+  position: fixed !important;
+}
+
+/* 底部信息 */
+.create-note-footer {
+  background: #f8f9fa;
+  border-top: 1px solid #e8e8e8;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #6c757d;
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+}
+
+.footer-info {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  justify-content: space-between;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .create-note-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .note-meta-section {
+    padding: 1rem;
+  }
+
+  .meta-row {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .meta-item {
+    width: 100%;
+  }
+
+  .editor-wrapper {
+    padding: 1rem;
+  }
+
+  .create-note-footer {
+    padding: 1rem;
+  }
+
+  .footer-info {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .create-note-header {
+    padding: 1rem;
+  }
+
+  .create-note-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .back-button,
+  .preview-button,
+  .save-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .meta-container {
+    padding: 0;
+  }
+
+  .tag-input-wrapper {
+    min-width: 150px;
+  }
+}
