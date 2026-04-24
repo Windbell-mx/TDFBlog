@@ -6,14 +6,12 @@ import com.techforum.backend.model.User;
 import com.techforum.backend.repository.ArticleRepository;
 import com.techforum.backend.repository.UserRepository;
 import com.techforum.backend.util.RedisUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 public class ArticleService {
     @Autowired
@@ -31,81 +29,80 @@ public class ArticleService {
 
     public List<ArticleResponse> findAll() {
         try {
+            // 尝试从缓存获取
             List<ArticleResponse> articles = (List<ArticleResponse>) redisUtil.get(ARTICLES_LIST_KEY);
             if (articles != null) {
-                log.debug("从Redis缓存获取文章列表，数量: {}", articles.size());
                 return articles;
             }
         } catch (Exception e) {
-            log.warn("Redis读取文章列表缓存失败，从数据库获取数据", e);
+            System.err.println("Redis读取失败，从数据库获取: " + e.getMessage());
         }
 
+        // 从数据库获取
         List<ArticleResponse> articles = articleRepository.findAll().stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
-        log.info("从数据库获取文章列表，数量: {}", articles.size());
-
+        
         try {
+            // 缓存结果
             redisUtil.set(ARTICLES_LIST_KEY, articles, CACHE_EXPIRY);
-            log.debug("文章列表已缓存到Redis");
         } catch (Exception e) {
-            log.warn("Redis写入文章列表缓存失败，继续使用数据库数据", e);
+            System.err.println("Redis写入失败: " + e.getMessage());
         }
-
+        
         return articles;
     }
 
     public Optional<ArticleResponse> findById(Long id) {
         try {
+            // 尝试从缓存获取
             ArticleResponse article = (ArticleResponse) redisUtil.get(ARTICLE_CACHE_KEY + id);
             if (article != null) {
-                log.debug("从Redis缓存获取文章，ID: {}", id);
                 return Optional.of(article);
             }
         } catch (Exception e) {
-            log.warn("Redis读取文章缓存失败，ID: {}，从数据库获取", id, e);
+            System.err.println("Redis读取失败，从数据库获取: " + e.getMessage());
         }
 
+        // 从数据库获取
         Optional<Article> articleOptional = articleRepository.findById(id);
         Optional<ArticleResponse> responseOptional = articleOptional.map(this::convertToResponse);
-
+        
         try {
             if (responseOptional.isPresent()) {
+                // 缓存结果
                 redisUtil.set(ARTICLE_CACHE_KEY + id, responseOptional.get(), CACHE_EXPIRY);
-                log.debug("文章已缓存到Redis，ID: {}", id);
             }
         } catch (Exception e) {
-            log.warn("Redis写入文章缓存失败，ID: {}", id, e);
+            System.err.println("Redis写入失败: " + e.getMessage());
         }
-
+        
         return responseOptional;
     }
 
     public Article save(Article article) {
         Article savedArticle = articleRepository.save(article);
-        log.info("保存文章成功，ID: {}", savedArticle.getId());
-
+        
         try {
+            // 清除相关缓存
             redisUtil.delete(ARTICLES_LIST_KEY);
             redisUtil.delete(ARTICLE_CACHE_KEY + savedArticle.getId());
-            log.debug("文章保存后清除相关缓存，ID: {}", savedArticle.getId());
         } catch (Exception e) {
-            log.warn("Redis清除文章缓存失败，ID: {}", savedArticle.getId(), e);
+            System.err.println("Redis删除缓存失败: " + e.getMessage());
         }
-
+        
         return savedArticle;
     }
 
     public void deleteById(Long id) {
         articleRepository.deleteById(id);
-        log.info("删除文章成功，ID: {}", id);
-
+        
         try {
+            // 清除相关缓存
             redisUtil.delete(ARTICLES_LIST_KEY);
             redisUtil.delete(ARTICLE_CACHE_KEY + id);
-            log.debug("删除文章后清除相关缓存，ID: {}", id);
         } catch (Exception e) {
-            log.warn("Redis清除文章缓存失败，ID: {}", id, e);
+            System.err.println("Redis删除缓存失败: " + e.getMessage());
         }
     }
 
@@ -121,13 +118,12 @@ public class ArticleService {
             Article article = articleOptional.get();
             article.setReadCount(article.getReadCount() + 1);
             articleRepository.save(article);
-            log.debug("文章阅读量递增，ID: {}, 新阅读量: {}", articleId, article.getReadCount());
-
+            
             try {
                 redisUtil.delete(ARTICLES_LIST_KEY);
                 redisUtil.delete(ARTICLE_CACHE_KEY + articleId);
             } catch (Exception e) {
-                log.warn("Redis清除阅读量缓存失败，ID: {}", articleId, e);
+                System.err.println("Redis删除缓存失败: " + e.getMessage());
             }
         }
     }
@@ -135,22 +131,22 @@ public class ArticleService {
     public List<Map<String, Object>> getPopularAuthors() {
         try {
             List<Article> allArticles = articleRepository.findAll();
-
+            
             Map<Long, Long> userArticleCount = new HashMap<>();
             for (Article article : allArticles) {
                 Long userId = article.getUserId();
                 userArticleCount.put(userId, userArticleCount.getOrDefault(userId, 0L) + 1);
             }
-
+            
             List<Map.Entry<Long, Long>> sortedEntries = new ArrayList<>(userArticleCount.entrySet());
             sortedEntries.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
-
+            
             List<Map<String, Object>> result = new ArrayList<>();
-
+            
             for (Map.Entry<Long, Long> entry : sortedEntries) {
                 Long userId = entry.getKey();
                 Long articleCount = entry.getValue();
-
+                
                 Optional<User> userOptional = userRepository.findById(userId);
                 if (userOptional.isPresent()) {
                     User user = userOptional.get();
@@ -162,11 +158,11 @@ public class ArticleService {
                     result.add(authorInfo);
                 }
             }
-
-            log.info("获取热门作者成功，共 {} 位", result.size());
+            
             return result;
         } catch (Exception e) {
-            log.error("获取热门作者失败", e);
+            System.err.println("获取热门作者失败: " + e.getMessage());
+            e.printStackTrace();
             return new ArrayList<>();
         }
     }
@@ -183,6 +179,7 @@ public class ArticleService {
         response.setCreatedAt(article.getCreatedAt());
         response.setUpdatedAt(article.getUpdatedAt());
 
+        // 只返回用户的基本信息
         if (article.getUser() != null) {
             ArticleResponse.UserSummary userSummary = new ArticleResponse.UserSummary();
             userSummary.setId(article.getUser().getId());

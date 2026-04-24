@@ -112,58 +112,32 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack }) => {
 
   return (
     <div className="article-detail-container">
-      <div className="article-detail-wrapper">
-        <div className="article-detail-header">
-          <button className="back-button" onClick={onBack}>
-            <span className="back-arrow">←</span>
-            <span className="back-text">返回</span>
-          </button>
+      <div className="article-detail-header">
+        <button className="back-button" onClick={onBack}>← 返回</button>
+        <h1 className="article-detail-title">{article.title || '无标题'}</h1>
+        <div className="article-detail-meta">
+          <span className="article-author">
+            <img src={avatar} alt={username} className="author-avatar" />
+            {username}
+          </span>
+          <span className="article-date">{formatDate(article.createdAt)}</span>
+          <span className="article-category">{article.category || '技术文章'}</span>
+          <span className="article-reads">👁 {article.readCount || 0}</span>
         </div>
-
-        <article className="article-detail-main">
-          <header className="article-detail-heading">
-            <div className="article-category-tag">
-              {article.category || '技术文章'}
-            </div>
-            <h1 className="article-detail-title">{article.title || '无标题'}</h1>
-            
-            <div className="article-meta-section">
-              <div className="article-author-info">
-                <img src={avatar} alt={username} className="author-avatar-large" />
-                <div className="author-details">
-                  <span className="author-name">{username}</span>
-                  <span className="article-date">{formatDate(article.createdAt)}</span>
-                </div>
-              </div>
-              
-              <div className="article-stats">
-                <span className="article-stat">
-                  <span className="stat-icon">👁</span>
-                  <span className="stat-value">{article.readCount || 0}</span>
-                  <span className="stat-label">阅读</span>
-                </span>
-              </div>
-            </div>
-          </header>
-
-          <div className="article-action-bar">
-            <button
-              className={`fancy-collect-btn ${isCollected ? 'collected' : ''} ${isLoadingCollection ? 'loading' : ''}`}
-              onClick={handleToggleCollection}
-              disabled={isLoadingCollection}
-            >
-              <span className="collect-icon">
-                {isCollected ? '❤️' : '🤍'}
-              </span>
-              <span className="collect-text">
-                {isLoadingCollection ? '操作中...' : (isCollected ? '已收藏' : '收藏')}
-              </span>
-            </button>
-          </div>
-
-          <div className="article-detail-content" dangerouslySetInnerHTML={{ __html: article.content || '<p>无内容</p>' }} />
-        </article>
+        <button
+          className={`fancy-collect-btn ${isCollected ? 'collected' : ''} ${isLoadingCollection ? 'loading' : ''}`}
+          onClick={handleToggleCollection}
+          disabled={isLoadingCollection}
+        >
+          <span className="collect-icon">
+            {isCollected ? '❤️' : '🤍'}
+          </span>
+          <span className="collect-text">
+            {isLoadingCollection ? '操作中...' : (isCollected ? '已收藏' : '收藏')}
+          </span>
+        </button>
       </div>
+      <div className="article-detail-content" dangerouslySetInnerHTML={{ __html: article.content || '<p>无内容</p>' }} />
     </div>
   );
 };
