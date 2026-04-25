@@ -39,9 +39,9 @@ public class CollectionController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Map<String, Object>> removeCollection(@RequestBody Map<String, Long> request) {
-        Long userId = request.get("userId");
-        Long articleId = request.get("articleId");
+    public ResponseEntity<Map<String, Object>> removeCollection(
+            @RequestParam Long userId,
+            @RequestParam Long articleId) {
         
         collectionService.removeCollection(userId, articleId);
         
@@ -49,6 +49,37 @@ public class CollectionController {
         response.put("success", true);
         response.put("message", "取消收藏成功");
         return ResponseEntity.ok(response);
+    }
+    
+    @PostMapping("/remove")
+    public ResponseEntity<Map<String, Object>> removeCollectionPost(@RequestBody Map<String, Long> request) {
+        try {
+            Long userId = request.get("userId");
+            Long articleId = request.get("articleId");
+            
+            System.out.println("取消收藏请求: userId=" + userId + ", articleId=" + articleId);
+            
+            if (userId == null || articleId == null) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "参数错误");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+            
+            collectionService.removeCollection(userId, articleId);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "取消收藏成功");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("取消收藏失败: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "操作失败，请稍后重试");
+            return ResponseEntity.status(500).body(errorResponse);
+        }
     }
 
     @GetMapping("/user/{userId}")

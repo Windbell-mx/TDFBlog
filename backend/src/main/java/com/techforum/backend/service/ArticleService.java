@@ -87,6 +87,7 @@ public class ArticleService {
             // 清除相关缓存
             redisUtil.delete(ARTICLES_LIST_KEY);
             redisUtil.delete(ARTICLE_CACHE_KEY + savedArticle.getId());
+            redisUtil.delete(POPULAR_AUTHORS_KEY);
         } catch (Exception e) {
             System.err.println("Redis删除缓存失败: " + e.getMessage());
         }
@@ -101,6 +102,7 @@ public class ArticleService {
             // 清除相关缓存
             redisUtil.delete(ARTICLES_LIST_KEY);
             redisUtil.delete(ARTICLE_CACHE_KEY + id);
+            redisUtil.delete(POPULAR_AUTHORS_KEY);
         } catch (Exception e) {
             System.err.println("Redis删除缓存失败: " + e.getMessage());
         }
@@ -128,7 +130,19 @@ public class ArticleService {
         }
     }
 
+    private static final String POPULAR_AUTHORS_KEY = "authors:popular";
+    
     public List<Map<String, Object>> getPopularAuthors() {
+        try {
+            // 尝试从缓存获取
+            List<Map<String, Object>> popularAuthors = (List<Map<String, Object>>) redisUtil.get(POPULAR_AUTHORS_KEY);
+            if (popularAuthors != null) {
+                return popularAuthors;
+            }
+        } catch (Exception e) {
+            System.err.println("Redis读取失败，从数据库获取: " + e.getMessage());
+        }
+
         try {
             List<Article> allArticles = articleRepository.findAll();
             
@@ -152,11 +166,18 @@ public class ArticleService {
                     User user = userOptional.get();
                     Map<String, Object> authorInfo = new HashMap<>();
                     authorInfo.put("id", user.getId());
-                    authorInfo.put("username", user.getUsername());
+                    authorInfo.put("nickname", user.getNickname());
                     authorInfo.put("avatar", user.getAvatar());
                     authorInfo.put("articleCount", articleCount);
                     result.add(authorInfo);
                 }
+            }
+            
+            try {
+                // 缓存结果，设置30分钟过期
+                redisUtil.set(POPULAR_AUTHORS_KEY, result, 1800);
+            } catch (Exception e) {
+                System.err.println("Redis写入失败: " + e.getMessage());
             }
             
             return result;
@@ -183,7 +204,7 @@ public class ArticleService {
         if (article.getUser() != null) {
             ArticleResponse.UserSummary userSummary = new ArticleResponse.UserSummary();
             userSummary.setId(article.getUser().getId());
-            userSummary.setUsername(article.getUser().getUsername());
+            userSummary.setUsername(article.getUser().getNickname());
             userSummary.setAvatar(article.getUser().getAvatar());
             response.setUser(userSummary);
         }

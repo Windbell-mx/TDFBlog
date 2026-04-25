@@ -1,9 +1,19 @@
 spring:
   datasource:
-    url: jdbc:mysql://47.98.36.181:3306/tech_forum?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://47.98.36.181:3306/tech_forum?useSSL=false&serverTimezone=UTC&autoReconnect=true&useUnicode=true&characterEncoding=utf8
     username: root
     password: Windbell01*@
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      validation-timeout: 5000
+      test-on-borrow: true
+      test-while-idle: true
+      connection-test-query: SELECT 1
   jpa:
     hibernate:
       ddl-auto: update
@@ -34,6 +44,10 @@ spring:
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 2MB
 
 server:
   address: 0.0.0.0
