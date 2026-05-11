@@ -1,6 +1,5 @@
 package com.techforum.backend.config;
 
-import com.techforum.backend.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -29,9 +28,6 @@ import java.util.stream.Collectors;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-
-    @Autowired
-    private JwtUtil jwtUtil;
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;

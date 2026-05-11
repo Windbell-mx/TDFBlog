@@ -1,7 +1,6 @@
 package com.techforum.backend.config;
 
 import io.minio.MinioClient;
-import io.minio.errors.MinioException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
