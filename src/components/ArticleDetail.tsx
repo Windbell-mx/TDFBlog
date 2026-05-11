@@ -91,7 +91,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthor
     });
   };
 
-  const user = article.user || {};
+  const user = article.user ?? { id: 0, nickname: '', username: '', avatar: '', email: '' };
   const displayName = user.nickname || user.username || '未知用户';
   const avatar = user.avatar || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20avatar%20portrait&image_size=square';
 
@@ -101,8 +101,8 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthor
         <button className="back-button" onClick={onBack}>← 返回</button>
         <h1 className="article-detail-title">{article.title || '无标题'}</h1>
         <div className="article-detail-meta">
-          <span 
-            className="article-author" 
+          <span
+            className="article-author"
             onClick={() => {
               if (onAuthorClick && user.id) {
                 onAuthorClick(user.id, displayName);
