@@ -1,30 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { collectionApi, getCurrentUserId } from '../services/api';
-
-interface User {
-  id: number;
-  username?: string;
-  nickname?: string;
-  email: string;
-  avatar?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-interface Article {
-  id: number;
-  title: string;
-  content: string;
-  coverImage?: string;
-  category?: string;
-  readCount?: number;
-  createdAt: string;
-  updatedAt: string;
-  user: User;
-}
+import { collectionApi, getCurrentUserId, type Article as ApiArticle } from '../services/api';
 
 interface ArticleDetailProps {
-  article: Article;
+  article: ApiArticle;
   onBack: () => void;
   onAuthorClick?: (authorId: number, authorName: string) => void;
 }

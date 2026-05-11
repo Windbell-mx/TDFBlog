@@ -3,19 +3,7 @@ import '../styles/Home.css';
 import ArticleCard from './ArticleCard';
 import CreateArticle from './CreateArticle';
 import ToastManager from './ToastManager';
-import { articleApi, getCurrentUserId } from '../services/api';
-
-interface Article {
-  id: number;
-  title: string;
-  content: string;
-  coverImage?: string;
-  category?: string;
-  readCount?: number;
-  createdAt: string;
-  updatedAt: string;
-  user: { id: number; nickname?: string; username?: string; email: string; avatar?: string };
-}
+import { articleApi, getCurrentUserId, type Article as ApiArticle } from '../services/api';
 
 interface Author {
   id: number;
@@ -25,7 +13,7 @@ interface Author {
 }
 
 interface HomeProps {
-  onArticleClick?: (article: Article) => void;
+  onArticleClick?: (article: ApiArticle) => void;
   onAuthorClick?: (authorId: number, authorName: string) => void;
 }
 
@@ -39,7 +27,7 @@ interface Toast {
 const Home = ({ onArticleClick, onAuthorClick }: HomeProps) => {
   const [currentPage, setCurrentPage] = useState('home');
   const [searchTerm, setSearchTerm] = useState('');
-  const [articles, setArticles] = useState<Article[]>([]);
+  const [articles, setArticles] = useState<ApiArticle[]>([]);
   const [popularAuthors, setPopularAuthors] = useState<Author[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -81,7 +69,6 @@ const Home = ({ onArticleClick, onAuthorClick }: HomeProps) => {
 
   const handleCreateArticle = () => {
     setCurrentPage('createArticle');
-    // 更新浏览器历史记录
     history.pushState({ page: 'createArticle' }, '', `/#create-article`);
   };
 
@@ -119,7 +106,6 @@ const Home = ({ onArticleClick, onAuthorClick }: HomeProps) => {
       const data = await articleApi.getAllArticles();
       setArticles(data);
       setCurrentPage('home');
-      // 更新浏览器历史记录
       history.pushState({ page: 'home' }, '', `/#home`);
       showToast('文章发布成功！', 'success');
     } catch (error) {
@@ -324,7 +310,6 @@ const Home = ({ onArticleClick, onAuthorClick }: HomeProps) => {
         <CreateArticle
           onBack={() => {
             setCurrentPage('home');
-            // 更新浏览器历史记录
             history.pushState({ page: 'home' }, '', `/#home`);
           }}
           onSave={handleSaveArticle}
