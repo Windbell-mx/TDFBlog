@@ -1,38 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '../styles/MainPage.css';
 import Home from './Home';
 import Profile from './Profile';
 import ArticleDetail from './ArticleDetail';
-import { userApi } from '../services/api';
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  avatar?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-interface Article {
-  id: number;
-  title: string;
-  content: string;
-  coverImage?: string;
-  category?: string;
-  readCount?: number;
-  createdAt: string;
-  updatedAt: string;
-  user: User;
-}
+import { userApi, articleApi, type Article } from '../services/api';
 
 interface MainPageProps {
   onLogout: () => void;
 }
 
 const MainPage = ({ onLogout }: MainPageProps) => {
+  
   const [currentModule, setCurrentModule] = useState('home');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [viewedAuthor, setViewedAuthor] = useState<{ id: number; username: string } | null>(null);
+  const [latestArticles, setLatestArticles] = useState<Article[]>([]);
 
   const handleLogout = () => {
     userApi.logout();
@@ -41,11 +23,73 @@ const MainPage = ({ onLogout }: MainPageProps) => {
 
   const handleArticleClick = (article: Article) => {
     setSelectedArticle(article);
+    // 更新浏览器历史记录
+    history.pushState({ articleId: article.id }, '', `/#article/${article.id}`);
   };
 
   const handleBackFromArticle = () => {
     setSelectedArticle(null);
+    // 更新浏览器历史记录
+    history.pushState({ module: 'community' }, '', `/#community`);
   };
+
+  const handleAuthorClick = (authorId: number, authorName: string) => {
+    setViewedAuthor({ id: authorId, username: authorName });
+    setCurrentModule('personal');
+    // 更新浏览器历史记录
+    history.pushState({ authorId, module: 'personal' }, '', `/#author/${authorId}`);
+  };
+
+  const handleBackFromAuthor = () => {
+    setViewedAuthor(null);
+    setCurrentModule('community');
+    // 更新浏览器历史记录
+    history.pushState({ module: 'community' }, '', `/#community`);
+  };
+
+  // 监听浏览器回退事件
+  useEffect(() => {
+    const handlePopState = () => {
+      // 根据当前状态处理回退逻辑
+      if (selectedArticle) {
+        setSelectedArticle(null);
+      } else if (viewedAuthor) {
+        setViewedAuthor(null);
+      } else if (currentModule !== 'home') {
+        setCurrentModule('home');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [currentModule, selectedArticle, viewedAuthor]);
+
+  // 处理导航
+  const handleNavClick = (module: string) => {
+    setCurrentModule(module);
+    setSelectedArticle(null);
+    setViewedAuthor(null);
+    // 更新浏览器历史记录
+    history.pushState({ module }, '', `/#${module}`);
+  };
+
+  // 获取最新文章
+  useEffect(() => {
+    const fetchLatestArticles = async () => {
+      try {
+        const articles = await articleApi.getAllArticles();
+        // 按创建时间排序，取最新的文章
+        const sortedArticles = articles.sort((a, b) => {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+        setLatestArticles(sortedArticles.slice(0, 2)); // 只显示最新的2篇文章
+      } catch (error) {
+        console.error('获取最新文章失败:', error);
+      }
+    };
+
+    fetchLatestArticles();
+  }, []);
 
   return (
     <div className="main-page-container">
@@ -56,28 +100,19 @@ const MainPage = ({ onLogout }: MainPageProps) => {
         <nav className="main-nav">
           <button
             className={`nav-module ${currentModule === 'home' ? 'active' : ''}`}
-            onClick={() => {
-              setCurrentModule('home');
-              setSelectedArticle(null);
-            }}
+            onClick={() => handleNavClick('home')}
           >
             首页
           </button>
           <button
             className={`nav-module ${currentModule === 'community' ? 'active' : ''}`}
-            onClick={() => {
-              setCurrentModule('community');
-              setSelectedArticle(null);
-            }}
+            onClick={() => handleNavClick('community')}
           >
             科技社区
           </button>
           <button
             className={`nav-module ${currentModule === 'personal' ? 'active' : ''}`}
-            onClick={() => {
-              setCurrentModule('personal');
-              setSelectedArticle(null);
-            }}
+            onClick={() => handleNavClick('personal')}
           >
             个人中心
           </button>
@@ -98,7 +133,7 @@ const MainPage = ({ onLogout }: MainPageProps) => {
                 <p>这里是技术爱好者的聚集地，分享知识，交流经验，共同成长</p>
                 <button
                   className="get-started-button"
-                  onClick={() => setCurrentModule('community')}
+                  onClick={() => handleNavClick('community')}
                 >
                   浏览社区
                 </button>
@@ -129,38 +164,56 @@ const MainPage = ({ onLogout }: MainPageProps) => {
             <section className="latest-articles">
               <h3>最新文章</h3>
               <div className="articles-preview">
-                <div className="article-preview">
-                  <h4>React 19 新特性详解</h4>
-                  <p>探索 React 19 带来的新功能和改进</p>
-                  <button
-                    className="read-more-button"
-                    onClick={() => setCurrentModule('community')}
-                  >
-                    阅读更多
-                  </button>
-                </div>
-                <div className="article-preview">
-                  <h4>TypeScript 高级类型技巧</h4>
-                  <p>掌握 TypeScript 的高级类型系统</p>
-                  <button
-                    className="read-more-button"
-                    onClick={() => setCurrentModule('community')}
-                  >
-                    阅读更多
-                  </button>
-                </div>
+                {latestArticles.length > 0 ? (
+                  latestArticles.map(article => (
+                    <div key={article.id} className="article-preview" onClick={() => handleArticleClick(article)}>
+                      <h4>{article.title}</h4>
+                      <p>{article.content.replace(/<[^>]*>/g, '').substring(0, 100)}...</p>
+                      <div className="article-meta">
+                        <span className="article-author">
+                          <img 
+                            src={article.user.avatar || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20avatar%20portrait&image_size=square'} 
+                            alt={article.user.nickname || article.user.username} 
+                            className="author-avatar-small"
+                          />
+                          {article.user.nickname || article.user.username}
+                        </span>
+                        <span className="article-date">{new Date(article.createdAt).toLocaleDateString('zh-CN')}</span>
+                      </div>
+                      <button
+                        className="read-more-button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleArticleClick(article);
+                        }}
+                      >
+                        阅读更多
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <div className="empty-state">
+                    <p>暂无文章</p>
+                    <button
+                      className="read-more-button"
+                      onClick={() => handleNavClick('community')}
+                    >
+                      浏览社区
+                    </button>
+                  </div>
+                )}
               </div>
             </section>
           </div>
         )}
         {currentModule === 'community' && selectedArticle === null && (
-          <Home onArticleClick={handleArticleClick} />
+          <Home onArticleClick={handleArticleClick} onAuthorClick={handleAuthorClick} />
         )}
         {currentModule === 'community' && selectedArticle !== null && (
-          <ArticleDetail article={selectedArticle} onBack={handleBackFromArticle} />
+          <ArticleDetail article={selectedArticle} onBack={handleBackFromArticle} onAuthorClick={handleAuthorClick} />
         )}
         {currentModule === 'personal' && (
-          <Profile onLogout={handleLogout} />
+          <Profile onLogout={handleLogout} viewedAuthor={viewedAuthor} onBack={handleBackFromAuthor} />
         )}
       </main>
     </div>

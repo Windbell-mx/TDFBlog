@@ -11,6 +11,7 @@ import com.techforum.backend.service.EmailService;
 import com.techforum.backend.service.UserService;
 import com.techforum.backend.util.JwtUtil;
 import com.techforum.backend.util.MinioUtil;
+import com.techforum.backend.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +44,10 @@ public class UserController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private RedisUtil redisUtil;
+
+    private static final String USER_CACHE_KEY = "user:";
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     private UserResponse convertToUserResponse(User user) {
@@ -68,11 +73,11 @@ public class UserController {
 
         User user = new User();
         user.setEmail(request.getEmail());
-        user.setNickname(request.getUsername()); // 使用username作为nickname
+        user.setNickname(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         User savedUser = userService.save(user);
-        String token = jwtUtil.generateToken(savedUser.getId(), savedUser.getEmail()); // 使用email作为token的subject
+        String token = jwtUtil.generateToken(savedUser.getId(), savedUser.getEmail());
 
         return ResponseEntity.ok(new AuthResponse(token, convertToUserResponse(savedUser)));
     }
@@ -83,7 +88,7 @@ public class UserController {
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                String token = jwtUtil.generateToken(user.getId(), user.getEmail()); // 使用email作为token的subject
+                String token = jwtUtil.generateToken(user.getId(), user.getEmail());
                 return ResponseEntity.ok(new AuthResponse(token, convertToUserResponse(user)));
             }
         }
@@ -106,9 +111,23 @@ public class UserController {
             Optional<User> userOptional = userService.findById(id);
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
+
+                String oldAvatarUrl = user.getAvatar();
+                if (oldAvatarUrl != null && !oldAvatarUrl.isEmpty()) {
+                    minioUtil.deleteFile(oldAvatarUrl);
+                }
+
                 String avatarUrl = minioUtil.uploadFile(file);
                 user.setAvatar(avatarUrl);
                 userService.save(user);
+
+                try {
+                    redisUtil.delete(USER_CACHE_KEY + id);
+                    redisUtil.delete(USER_CACHE_KEY + user.getEmail());
+                } catch (Exception e) {
+                    System.err.println("Redis缓存清除失败: " + e.getMessage());
+                }
+
                 Map<String, String> response = new HashMap<>();
                 response.put("avatar", avatarUrl);
                 return ResponseEntity.ok(response);
@@ -123,10 +142,44 @@ public class UserController {
         }
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody Map<String, String> updates) {
+        Optional<User> userOptional = userService.findById(id);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            if (updates.containsKey("nickname")) {
+                user.setNickname(updates.get("nickname"));
+            }
+            if (updates.containsKey("gender")) {
+                user.setGender(updates.get("gender"));
+            }
+            if (updates.containsKey("bio")) {
+                user.setBio(updates.get("bio"));
+            }
+
+            User updatedUser = userService.save(user);
+
+            try {
+                redisUtil.delete(USER_CACHE_KEY + id);
+                redisUtil.delete(USER_CACHE_KEY + updatedUser.getEmail());
+            } catch (Exception e) {
+                System.err.println("Redis缓存清除失败: " + e.getMessage());
+            }
+
+            return ResponseEntity.ok(convertToUserResponse(updatedUser));
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         Optional<User> userOptional = userService.findById(id);
         if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            if (user.getAvatar() != null) {
+                minioUtil.deleteFile(user.getAvatar());
+            }
             userService.deleteById(id);
             return ResponseEntity.ok().build();
         }
@@ -147,12 +200,11 @@ public class UserController {
                 emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
                 return ResponseEntity.ok("密码重置链接已发送到您的邮箱，请查收");
             } catch (Exception e) {
-                System.err.println("邮件发送失败: " + e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("邮件发送失败，请稍后重试或联系管理员");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("邮件发送失败，请稍后重试");
             }
         }
-        return ResponseEntity.ok("如果邮箱存在，重置链接已发送");
+
+        return ResponseEntity.ok("如果该邮箱已注册，密码重置链接已发送到您的邮箱");
     }
 
     @PostMapping("/reset-password")
@@ -163,34 +215,15 @@ public class UserController {
             if (user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("重置链接已过期");
             }
+
             user.setPassword(passwordEncoder.encode(request.getNewPassword()));
             user.setResetToken(null);
             user.setResetTokenExpiry(null);
             userService.save(user);
+
             return ResponseEntity.ok("密码重置成功");
         }
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("无效的重置链接");
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
-        Optional<User> userOptional = userService.findById(id);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-
-            if (updates.containsKey("nickname")) {
-                user.setNickname((String) updates.get("nickname"));
-            }
-            if (updates.containsKey("gender")) {
-                user.setGender((String) updates.get("gender"));
-            }
-            if (updates.containsKey("bio")) {
-                user.setBio((String) updates.get("bio"));
-            }
-
-            User updatedUser = userService.save(user);
-            return ResponseEntity.ok(convertToUserResponse(updatedUser));
-        }
-        return ResponseEntity.notFound().build();
     }
 }

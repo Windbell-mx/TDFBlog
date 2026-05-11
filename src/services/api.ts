@@ -1,16 +1,19 @@
 // API服务文件，用于与后端通信
 
-const API_BASE_URL = 'http://localhost:8081/api';
+const API_BASE_URL = '/api';
 const TOKEN_KEY = 'tech_forum_token';
 const USER_KEY = 'tech_forum_user';
 
 // 类型定义
 export interface User {
   id: number;
-  username: string;
   email: string;
+  nickname?: string;
+  username?: string;
   password?: string;
   avatar?: string;
+  gender?: string;
+  bio?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -193,6 +196,13 @@ export const userApi = {
     throw new HttpError(`HTTP error! status: ${response.status}`, response.status);
   },
 
+  updateUser: async (id: number, updates: { nickname?: string; gender?: string; bio?: string }): Promise<User> => {
+    return request<User>(`/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  },
+
   forgotPassword: async (email: string): Promise<string> => {
     const response = await fetch(`${API_BASE_URL}/users/forgot-password`, {
       method: 'POST',
@@ -262,7 +272,7 @@ export const articleApi = {
     });
   },
 
-  getPopularAuthors: () => request<Array<{ id: number; username: string; avatar?: string; articleCount: number }>>('/articles/popular-authors'),
+  getPopularAuthors: () => request<Array<{ id: number; nickname: string; avatar?: string; articleCount: number }>>('/articles/popular-authors'),
 };
 
 // 笔记相关API
@@ -298,8 +308,8 @@ export const collectionApi = {
     }),
 
   removeCollection: (userId: number, articleId: number) =>
-    request<{ success: boolean; message: string }>('/collections', {
-      method: 'DELETE',
+    request<{ success: boolean; message: string }>('/collections/remove', {
+      method: 'POST',
       body: JSON.stringify({ userId, articleId }),
     }),
 

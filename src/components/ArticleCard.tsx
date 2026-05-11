@@ -7,14 +7,21 @@ interface Article {
   date: string;
   category: string;
   readCount: number;
+  user?: {
+    id: number;
+    nickname?: string;
+    username?: string;
+    avatar?: string;
+  };
 }
 
 interface ArticleCardProps {
   article: Article;
   onClick?: () => void;
+  onAuthorClick?: (authorId: number, authorName: string) => void;
 }
 
-const ArticleCard: React.FC<ArticleCardProps> = ({ article, onClick }) => {
+const ArticleCard: React.FC<ArticleCardProps> = ({ article, onClick, onAuthorClick }) => {
   // 格式化日期
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -70,6 +77,26 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, onClick }) => {
       <p className="article-content">{extractPlainText(article.content)}</p>
       <div className="article-footer">
         <span className="article-reads">👁 {article.readCount}</span>
+        {article.user && (
+          <span 
+            className="article-author" 
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onAuthorClick && article.user) {
+                onAuthorClick(article.user.id, article.user.nickname || article.user.username || '用户');
+              }
+            }}
+            style={{ cursor: 'pointer' }}
+            title="点击查看作者信息"
+          >
+            <img 
+              src={article.user.avatar || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20avatar%20portrait&image_size=square'} 
+              alt={article.user.nickname || article.user.username} 
+              className="author-avatar-small"
+            />
+            {article.user.nickname || article.user.username}
+          </span>
+        )}
       </div>
     </div>
   );

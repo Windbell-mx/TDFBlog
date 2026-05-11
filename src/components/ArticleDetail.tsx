@@ -3,7 +3,8 @@ import { collectionApi, getCurrentUserId } from '../services/api';
 
 interface User {
   id: number;
-  username: string;
+  username?: string;
+  nickname?: string;
   email: string;
   avatar?: string;
   createdAt?: string;
@@ -25,9 +26,10 @@ interface Article {
 interface ArticleDetailProps {
   article: Article;
   onBack: () => void;
+  onAuthorClick?: (authorId: number, authorName: string) => void;
 }
 
-const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack }) => {
+const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthorClick }) => {
   const [isCollected, setIsCollected] = useState(false);
   const [isLoadingCollection, setIsLoadingCollection] = useState(false);
 
@@ -65,19 +67,29 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack }) => {
       return;
     }
 
+    console.log('收藏操作开始:', { userId, articleId: article.id, currentState: isCollected });
     setIsLoadingCollection(true);
     try {
       if (isCollected) {
-        await collectionApi.removeCollection(userId, article.id);
+        // 已收藏状态，点击取消收藏
+        console.log('执行取消收藏操作');
+        const response = await collectionApi.removeCollection(userId, article.id);
+        console.log('取消收藏成功:', response);
         setIsCollected(false);
       } else {
-        await collectionApi.addCollection(userId, article.id);
+        // 未收藏状态，点击收藏
+        console.log('执行收藏操作');
+        const response = await collectionApi.addCollection(userId, article.id);
+        console.log('收藏成功:', response);
         setIsCollected(true);
       }
     } catch (error) {
       console.error('收藏操作失败:', error);
+      // 显示错误提示
+      alert('操作失败，请稍后重试');
     } finally {
       setIsLoadingCollection(false);
+      console.log('收藏操作结束');
     }
   };
 
@@ -116,26 +128,35 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack }) => {
         <button className="back-button" onClick={onBack}>← 返回</button>
         <h1 className="article-detail-title">{article.title || '无标题'}</h1>
         <div className="article-detail-meta">
-          <span className="article-author">
+          <span 
+            className="article-author" 
+            onClick={() => {
+              if (onAuthorClick && user.id) {
+                onAuthorClick(user.id, username);
+              }
+            }}
+            style={{ cursor: 'pointer' }}
+            title="点击查看作者信息"
+          >
             <img src={avatar} alt={username} className="author-avatar" />
             {username}
           </span>
           <span className="article-date">{formatDate(article.createdAt)}</span>
           <span className="article-category">{article.category || '技术文章'}</span>
           <span className="article-reads">👁 {article.readCount || 0}</span>
+          <button
+            className={`fancy-collect-btn ${isCollected ? 'collected' : ''} ${isLoadingCollection ? 'loading' : ''}`}
+            onClick={handleToggleCollection}
+            disabled={isLoadingCollection}
+          >
+            <span className="collect-icon">
+              {isCollected ? '❤️' : '🤍'}
+            </span>
+            <span className="collect-text">
+              {isLoadingCollection ? '操作中...' : (isCollected ? '已收藏' : '收藏')}
+            </span>
+          </button>
         </div>
-        <button
-          className={`fancy-collect-btn ${isCollected ? 'collected' : ''} ${isLoadingCollection ? 'loading' : ''}`}
-          onClick={handleToggleCollection}
-          disabled={isLoadingCollection}
-        >
-          <span className="collect-icon">
-            {isCollected ? '❤️' : '🤍'}
-          </span>
-          <span className="collect-text">
-            {isLoadingCollection ? '操作中...' : (isCollected ? '已收藏' : '收藏')}
-          </span>
-        </button>
       </div>
       <div className="article-detail-content" dangerouslySetInnerHTML={{ __html: article.content || '<p>无内容</p>' }} />
     </div>

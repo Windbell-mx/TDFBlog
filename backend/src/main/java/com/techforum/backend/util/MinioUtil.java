@@ -2,6 +2,7 @@ package com.techforum.backend.util;
 
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -36,5 +37,24 @@ public class MinioUtil {
         }
 
         return minioUrl + "/" + bucketName + "/" + fileName;
+    }
+
+    public void deleteFile(String fileUrl) {
+        if (fileUrl == null || fileUrl.isEmpty()) {
+            return;
+        }
+
+        try {
+            String objectName = fileUrl.substring(fileUrl.lastIndexOf("/" + bucketName + "/") + bucketName.length() + 2);
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .build()
+            );
+            System.out.println("Minio旧文件已删除: " + objectName);
+        } catch (Exception e) {
+            System.err.println("删除Minio文件失败: " + e.getMessage());
+        }
     }
 }

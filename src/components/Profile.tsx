@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import '../styles/Profile.css';
-import { userApi, articleApi, noteApi, getUser, clearToken, HttpError, collectionApi } from '../services/api';
+import { userApi, articleApi, noteApi, getUser, getCurrentUserId, clearToken, HttpError, collectionApi } from '../services/api';
 import ToastManager from './ToastManager';
 import ConfirmDialog from './ConfirmDialog';
 import EditArticle from './EditArticle';
@@ -8,6 +8,7 @@ import EditArticle from './EditArticle';
 interface ProfileProps {
   onBack?: () => void;
   onLogout: () => void;
+  viewedAuthor?: { id: number; username: string } | null;
 }
 
 interface UserInfo {
@@ -49,7 +50,7 @@ interface Toast {
   duration?: number;
 }
 
-const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
+const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     nickname: '',
@@ -75,7 +76,9 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
   const [viewingArticle, setViewingArticle] = useState<Article | null>(null);
   const [userCollections, setUserCollections] = useState<Collection[]>([]);
   const [isLoadingCollections, setIsLoadingCollections] = useState(false);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const hasFetchedData = useRef(false);
 
   const currentUser = getUser();
 
@@ -107,20 +110,44 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
   });
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      console.log('currentUser:', currentUser);
-      console.log('currentUser.id:', currentUser?.id);
-      if (!currentUser?.id) return;
+    // 确定要查看的用户ID
+    const userId = viewedAuthor?.id || currentUser?.id;
+    if (hasFetchedData.current || !userId) return;
+    hasFetchedData.current = true;
+
+    const fetchUserInfo = async () => {
+      if (!userId) return;
+
+      try {
+        const userData = await userApi.getUserById(userId);
+        console.log('获取到的用户信息:', userData);
+
+        setUserInfo(prev => ({
+          ...prev,
+          id: userId,
+          nickname: userData.nickname || '技术达人',
+          gender: (userData.gender === 'female' || userData.gender === 'secret') ? userData.gender : 'male',
+          bio: userData.bio || '前端开发工程师，热爱技术分享和学习，专注于React、TypeScript等前端技术栈。',
+          avatar: userData.avatar || prev.avatar
+        }));
+      } catch (error) {
+        console.error('获取用户信息失败:', error);
+      } finally {
+        setIsLoadingUser(false);
+      }
+    };
+
+    const fetchOtherData = async () => {
+      if (!userId) return;
 
       setIsLoadingArticles(true);
       setIsLoadingCollections(true);
       try {
-        const [articles, notes, collections] = await Promise.all([
-          articleApi.getArticlesByUserId(currentUser.id),
-          noteApi.getNotesByUserId(currentUser.id),
-          collectionApi.getUserCollections(currentUser.id)
+        const [articles, notes] = await Promise.all([
+          articleApi.getArticlesByUserId(userId),
+          noteApi.getNotesByUserId(userId)
         ]);
-        
+
         const notesAsArticles: Article[] = notes.map(note => ({
           id: note.id,
           title: note.title,
@@ -128,31 +155,47 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
           createdAt: note.createdAt,
           readCount: 0
         }));
-        
+
         console.log('获取到的文章:', articles);
         console.log('获取到的笔记:', notes);
-        console.log('获取到的收藏:', collections);
-        setUserArticles(articles || []);
+        setUserArticles((articles || []).map(a => ({ ...a, readCount: a.readCount || 0 })));
         setUserNotes(notesAsArticles);
-        setUserCollections(collections || []);
-        setUserInfo(prev => ({
-          ...prev,
-          stats: {
-            ...prev.stats,
-            articles: articles?.length || 0,
-            collections: collections?.length || 0
-          }
-        }));
+
+        // 只获取当前用户的收藏，不获取其他用户的收藏
+        if (!viewedAuthor) {
+          const collections = await collectionApi.getUserCollections(userId);
+          console.log('获取到的收藏:', collections);
+          setUserCollections(collections || []);
+          setUserInfo(prev => ({
+            ...prev,
+            stats: {
+              ...prev.stats,
+              articles: articles?.length || 0,
+              collections: collections?.length || 0
+            }
+          }));
+        } else {
+          setUserCollections([]);
+          setUserInfo(prev => ({
+            ...prev,
+            stats: {
+              ...prev.stats,
+              articles: articles?.length || 0,
+              collections: 0
+            }
+          }));
+        }
       } catch (error) {
-        console.error('获取用户数据失败:', error);
+        console.error('获取其他数据失败:', error);
       } finally {
         setIsLoadingArticles(false);
         setIsLoadingCollections(false);
       }
     };
 
-    fetchUserData();
-  }, [currentUser?.id]);
+    fetchUserInfo();
+    fetchOtherData();
+  }, [currentUser?.id, viewedAuthor?.id]);
 
   const showToast = (message: string, type: 'success' | 'error' | 'info', duration: number = 3000) => {
     const id = Date.now().toString();
@@ -220,6 +263,14 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
           newAvatarUrl = result.avatar;
         }
 
+        const updates = {
+          nickname: editForm.nickname,
+          gender: editForm.gender,
+          bio: editForm.bio
+        };
+
+        await userApi.updateUser(userInfo.id, updates);
+
         setUserInfo(prev => ({
           ...prev,
           nickname: editForm.nickname,
@@ -230,7 +281,7 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
 
         const updatedUser = {
           ...currentUser,
-          username: editForm.nickname,
+          nickname: editForm.nickname,
           avatar: newAvatarUrl
         };
         localStorage.setItem('tech_forum_user', JSON.stringify(updatedUser));
@@ -370,9 +421,9 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
       console.log('发送给后端的数据:', updateData);
       console.log('文章ID:', article.id);
       await articleApi.updateArticle(article.id, updateData);
-      setUserArticles(prev => prev.map(a => 
-        a.id === article.id 
-          ? { ...a, title: article.title, content: article.content, category: article.category, user: a.user }
+      setUserArticles(prev => prev.map(a =>
+        a.id === article.id
+          ? { ...a, title: article.title, content: article.content, category: article.category }
           : a
       ));
       setIsEditArticleOpen(false);
@@ -623,11 +674,25 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
                         </div>
                       </div>
                     </div>
+                  ) : isLoadingUser ? (
+                    <div className="loading-state profile-loading">
+                      <div className="loading-spinner"></div>
+                      <p>加载个人信息中...</p>
+                    </div>
                   ) : (
                     <>
+                      {viewedAuthor && onBack && (
+                        <div className="profile-header">
+                          <button className="back-button" onClick={onBack}>
+                            ← 返回社区
+                          </button>
+                        </div>
+                      )}
                       <div className="profile-avatar">
                         <img src={userInfo.avatar} alt="头像" />
-                        <div className="avatar-decoration" onClick={handleEditClick}>✎</div>
+                        {!viewedAuthor && (
+                          <div className="avatar-decoration" onClick={handleEditClick}>✎</div>
+                        )}
                       </div>
                       <div className="profile-details">
                         <h2 className="profile-nickname">
@@ -635,7 +700,9 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
                           <span className="gender-badge">{genderLabels[userInfo.gender]}</span>
                         </h2>
                         <p className="profile-register-date">注册时间：{userInfo.registerDate}</p>
-                        <p className="profile-email">{userInfo.email}</p>
+                        {!viewedAuthor && (
+                          <p className="profile-email">{userInfo.email}</p>
+                        )}
                         <p className="profile-bio">{userInfo.bio}</p>
                         <div className="profile-stats">
                           <div className="stat-item">
@@ -651,8 +718,12 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
                             <span className="stat-label">收藏量</span>
                           </div>
                         </div>
-                        <button className="edit-profile-button" onClick={handleEditClick}>编辑资料</button>
-                        <button className="delete-account-button" onClick={() => setIsDeleteModalOpen(true)}>注销账号</button>
+                        {!viewedAuthor && (
+                          <>
+                            <button className="edit-profile-button" onClick={handleEditClick}>编辑资料</button>
+                            <button className="delete-account-button" onClick={() => setIsDeleteModalOpen(true)}>注销账号</button>
+                          </>
+                        )}
                       </div>
                     </>
                   )}

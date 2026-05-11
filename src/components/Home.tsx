@@ -14,18 +14,19 @@ interface Article {
   readCount?: number;
   createdAt: string;
   updatedAt: string;
-  user: { id: number; username: string; email: string; avatar?: string };
+  user: { id: number; nickname?: string; username?: string; email: string; avatar?: string };
 }
 
 interface Author {
   id: number;
-  username: string;
+  nickname: string;
   avatar?: string;
   articleCount: number;
 }
 
 interface HomeProps {
   onArticleClick?: (article: Article) => void;
+  onAuthorClick?: (authorId: number, authorName: string) => void;
 }
 
 interface Toast {
@@ -35,7 +36,7 @@ interface Toast {
   duration?: number;
 }
 
-const Home = ({ onArticleClick }: HomeProps) => {
+const Home = ({ onArticleClick, onAuthorClick }: HomeProps) => {
   const [currentPage, setCurrentPage] = useState('home');
   const [searchTerm, setSearchTerm] = useState('');
   const [articles, setArticles] = useState<Article[]>([]);
@@ -80,6 +81,8 @@ const Home = ({ onArticleClick }: HomeProps) => {
 
   const handleCreateArticle = () => {
     setCurrentPage('createArticle');
+    // 更新浏览器历史记录
+    history.pushState({ page: 'createArticle' }, '', `/#create-article`);
   };
 
   const showToast = (message: string, type: 'success' | 'error' | 'info', duration: number = 3000) => {
@@ -116,6 +119,8 @@ const Home = ({ onArticleClick }: HomeProps) => {
       const data = await articleApi.getAllArticles();
       setArticles(data);
       setCurrentPage('home');
+      // 更新浏览器历史记录
+      history.pushState({ page: 'home' }, '', `/#home`);
       showToast('文章发布成功！', 'success');
     } catch (error) {
       console.error('保存文章失败:', error);
@@ -224,9 +229,11 @@ const Home = ({ onArticleClick }: HomeProps) => {
                         content: article.content,
                         date: article.createdAt,
                         category: article.category || '技术文章',
-                        readCount: article.readCount || 0
+                        readCount: article.readCount || 0,
+                        user: article.user
                       }}
                       onClick={() => onArticleClick && onArticleClick(article)}
+                      onAuthorClick={(authorId, authorName) => onAuthorClick && onAuthorClick(authorId, authorName)}
                     />
                   ))}
                 </div>
@@ -238,13 +245,18 @@ const Home = ({ onArticleClick }: HomeProps) => {
                 <h3>🏆 热门作者</h3>
                 <div className="author-list">
                   {popularAuthors.map(author => (
-                    <div key={author.id} className="author-item">
+                    <div 
+                      key={author.id} 
+                      className="author-item" 
+                      onClick={() => onAuthorClick && onAuthorClick(author.id, author.nickname)}
+                      style={{ cursor: 'pointer' }}
+                    >
                       <img 
                         src={author.avatar || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=default%20avatar%20portrait&image_size=square'} 
-                        alt={author.username} 
+                        alt={author.nickname} 
                       />
                       <div className="author-info">
-                        <span className="author-name">{author.username}</span>
+                        <span className="author-name">{author.nickname}</span>
                         <span className="author-articles">{author.articleCount}篇文章</span>
                       </div>
                     </div>
@@ -310,7 +322,11 @@ const Home = ({ onArticleClick }: HomeProps) => {
 
       {currentPage === 'createArticle' && (
         <CreateArticle
-          onBack={() => setCurrentPage('home')}
+          onBack={() => {
+            setCurrentPage('home');
+            // 更新浏览器历史记录
+            history.pushState({ page: 'home' }, '', `/#home`);
+          }}
           onSave={handleSaveArticle}
         />
       )}
