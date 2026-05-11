@@ -71,13 +71,11 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthor
     setIsLoadingCollection(true);
     try {
       if (isCollected) {
-        // 已收藏状态，点击取消收藏
         console.log('执行取消收藏操作');
         const response = await collectionApi.removeCollection(userId, article.id);
         console.log('取消收藏成功:', response);
         setIsCollected(false);
       } else {
-        // 未收藏状态，点击收藏
         console.log('执行收藏操作');
         const response = await collectionApi.addCollection(userId, article.id);
         console.log('收藏成功:', response);
@@ -85,7 +83,6 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthor
       }
     } catch (error) {
       console.error('收藏操作失败:', error);
-      // 显示错误提示
       alert('操作失败，请稍后重试');
     } finally {
       setIsLoadingCollection(false);
@@ -104,7 +101,6 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthor
     );
   }
 
-  // 格式化日期
   const formatDate = (dateString: string): string => {
     if (!dateString) return '未知';
     const date = new Date(dateString);
@@ -117,9 +113,8 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthor
     });
   };
 
-  // 获取用户信息
   const user = article.user || {};
-  const username = user.username || '未知用户';
+  const displayName = user.nickname || user.username || '未知用户';
   const avatar = user.avatar || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20avatar%20portrait&image_size=square';
 
   return (
@@ -132,14 +127,14 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthor
             className="article-author" 
             onClick={() => {
               if (onAuthorClick && user.id) {
-                onAuthorClick(user.id, username);
+                onAuthorClick(user.id, displayName);
               }
             }}
             style={{ cursor: 'pointer' }}
             title="点击查看作者信息"
           >
-            <img src={avatar} alt={username} className="author-avatar" />
-            {username}
+            <img src={avatar} alt={displayName} className="author-avatar" />
+            {displayName}
           </span>
           <span className="article-date">{formatDate(article.createdAt)}</span>
           <span className="article-category">{article.category || '技术文章'}</span>
