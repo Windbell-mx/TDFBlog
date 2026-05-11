@@ -29,7 +29,7 @@ public class ArticleService {
 
     public List<ArticleResponse> findAll() {
         try {
-            // 尝试从缓存获取
+            @SuppressWarnings("unchecked")
             List<ArticleResponse> articles = (List<ArticleResponse>) redisUtil.get(ARTICLES_LIST_KEY);
             if (articles != null) {
                 return articles;
@@ -134,7 +134,7 @@ public class ArticleService {
     
     public List<Map<String, Object>> getPopularAuthors() {
         try {
-            // 尝试从缓存获取
+            @SuppressWarnings("unchecked")
             List<Map<String, Object>> popularAuthors = (List<Map<String, Object>>) redisUtil.get(POPULAR_AUTHORS_KEY);
             if (popularAuthors != null) {
                 return popularAuthors;
