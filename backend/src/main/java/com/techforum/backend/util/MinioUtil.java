@@ -16,11 +16,11 @@ public class MinioUtil {
     @Autowired
     private MinioClient minioClient;
 
+    @Value("${minio.publicUrl}")
+    private String publicUrl;
+
     @Value("${minio.bucketName}")
     private String bucketName;
-
-    @Value("${minio.url}")
-    private String minioUrl;
 
     public String uploadFile(MultipartFile file) throws Exception {
         String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
@@ -36,7 +36,7 @@ public class MinioUtil {
             );
         }
 
-        return minioUrl + "/" + bucketName + "/" + fileName;
+        return publicUrl + "/" + bucketName + "/" + fileName;
     }
 
     public void deleteFile(String fileUrl) {
