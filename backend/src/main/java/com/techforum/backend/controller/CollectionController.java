@@ -1,6 +1,5 @@
 package com.techforum.backend.controller;
 
-import com.techforum.backend.dto.ArticleResponse;
 import com.techforum.backend.model.Collection;
 import com.techforum.backend.service.CollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
