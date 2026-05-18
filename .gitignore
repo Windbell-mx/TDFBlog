@@ -27,8 +27,10 @@ dist-ssr
 backend/target
 backend/.mvn
 
-# Environment variables (sensitive)
-backend/.env
+# Environment variables (sensitive - do not commit)
 .env
-*.env.local
+backend/.env
+.env.local
+.env.*.local
+*.env
 
