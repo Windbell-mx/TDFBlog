@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import '../styles/Profile.css';
 import { userApi, articleApi, noteApi, getUser, getCurrentUserId, clearToken, HttpError, collectionApi } from '../services/api';
-import ToastManager from './ToastManager';
 import ConfirmDialog from './ConfirmDialog';
 import EditArticle from './EditArticle';
 
@@ -9,6 +8,7 @@ interface ProfileProps {
   onBack?: () => void;
   onLogout: () => void;
   viewedAuthor?: { id: number; username: string } | null;
+  addToast: (message: string, type: 'success' | 'error' | 'info', duration?: number) => void;
 }
 
 interface UserInfo {
@@ -43,14 +43,7 @@ interface Collection {
   createdAt: string;
 }
 
-interface Toast {
-  id: string;
-  message: string;
-  type: 'success' | 'error' | 'info';
-  duration?: number;
-}
-
-const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack }) => {
+const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack, addToast }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     nickname: '',
@@ -68,7 +61,6 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack }) => 
   const [userArticles, setUserArticles] = useState<Article[]>([]);
   const [userNotes, setUserNotes] = useState<Article[]>([]);
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
-  const [toasts, setToasts] = useState<Toast[]>([]);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [articleIdToDelete, setArticleIdToDelete] = useState<number | null>(null);
   const [isEditArticleOpen, setIsEditArticleOpen] = useState(false);
@@ -132,6 +124,7 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack }) => 
         }));
       } catch (error) {
         console.error('获取用户信息失败:', error);
+        addToast('获取用户信息失败', 'error');
       } finally {
         setIsLoadingUser(false);
       }
@@ -187,6 +180,7 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack }) => 
         }
       } catch (error) {
         console.error('获取其他数据失败:', error);
+        addToast('获取数据失败', 'error');
       } finally {
         setIsLoadingArticles(false);
         setIsLoadingCollections(false);
@@ -195,16 +189,7 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack }) => 
 
     fetchUserInfo();
     fetchOtherData();
-  }, [currentUser?.id, viewedAuthor?.id]);
-
-  const showToast = (message: string, type: 'success' | 'error' | 'info', duration: number = 3000) => {
-    const id = Date.now().toString();
-    setToasts(prev => [...prev, { id, message, type, duration }]);
-  };
-
-  const handleCloseToast = (id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
-  };
+  }, [currentUser?.id, viewedAuthor?.id, addToast]);
 
   const genderLabels = {
     male: '男',
@@ -288,10 +273,10 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack }) => 
 
         setAvatarFile(null);
         setIsEditing(false);
-        showToast('个人信息保存成功！', 'success');
+        addToast('个人信息保存成功！', 'success');
       } catch (err) {
         console.error('保存失败:', err);
-        showToast('保存失败，请稍后重试', 'error');
+        addToast('保存失败，请稍后重试', 'error');
       } finally {
         setIsSaving(false);
       }
@@ -348,10 +333,10 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack }) => 
     } catch (err) {
       console.error('注销账号失败:', err);
       if (err instanceof HttpError) {
-        showToast(`注销失败，请稍后重试。错误码: ${err.status}`, 'error');
+        addToast(`注销失败，请稍后重试。错误码: ${err.status}`, 'error');
         setIsDeleting(false);
       } else {
-        showToast('网络错误，请检查网络连接后重试。', 'error');
+        addToast('网络错误，请检查网络连接后重试。', 'error');
         setIsDeleting(false);
       }
     }
@@ -383,10 +368,10 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack }) => 
           articles: prev.stats.articles - 1
         }
       }));
-      showToast('文章删除成功！', 'success');
+      addToast('文章删除成功！', 'success');
     } catch (error) {
       console.error('删除文章失败:', error);
-      showToast('删除文章失败，请稍后重试', 'error');
+      addToast('删除文章失败，请稍后重试', 'error');
     } finally {
       setIsDeleteConfirmOpen(false);
       setArticleIdToDelete(null);
@@ -428,10 +413,10 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack }) => 
       ));
       setIsEditArticleOpen(false);
       setCurrentEditArticle(null);
-      showToast('文章编辑成功！', 'success');
+      addToast('文章编辑成功！', 'success');
     } catch (error) {
       console.error('编辑文章失败:', error);
-      showToast('编辑文章失败，请稍后重试', 'error');
+      addToast('编辑文章失败，请稍后重试', 'error');
     }
   };
 
@@ -443,7 +428,7 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack }) => 
   const handleRemoveCollection = async (articleId: number) => {
     const userId = getCurrentUserId();
     if (!userId) {
-      showToast('请先登录', 'error');
+      addToast('请先登录', 'error');
       return;
     }
 
@@ -457,14 +442,12 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack }) => 
           collections: Math.max(0, prev.stats.collections - 1)
         }
       }));
-      showToast('已取消收藏', 'success');
+      addToast('已取消收藏', 'success');
     } catch (error) {
       console.error('取消收藏失败:', error);
-      showToast('取消收藏失败，请稍后重试', 'error');
+      addToast('取消收藏失败，请稍后重试', 'error');
     }
   };
-
-
 
   return (
     <div className="profile-container">
@@ -775,8 +758,6 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack }) => 
           />
         </>
       )}
-
-      <ToastManager toasts={toasts} onClose={handleCloseToast} />
     </div>
   );
 };

@@ -4,35 +4,32 @@ import { userApi, HttpError } from '../services/api';
 
 interface ForgotPasswordProps {
   onBack: () => void;
+  addToast: (message: string, type: 'success' | 'error' | 'info', duration?: number) => void;
 }
 
-const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
+const ForgotPassword = ({ onBack, addToast }: ForgotPasswordProps) => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
-    setMessage('');
 
     if (!email) {
-      setError('请输入邮箱地址');
+      addToast('请输入邮箱地址', 'error');
       setIsLoading(false);
       return;
     }
 
     try {
       await userApi.forgotPassword(email);
-      setMessage('如果邮箱存在，重置密码链接已发送（请查看控制台）');
+      addToast('如果邮箱存在，重置密码链接已发送（请查看控制台）', 'success');
     } catch (err: any) {
       console.error('忘记密码请求失败:', err);
       if (err instanceof HttpError) {
-        setError(`请求失败，请稍后重试。错误码: ${err.status}`);
+        addToast(`请求失败，请稍后重试。错误码: ${err.status}`, 'error');
       } else {
-        setError('网络错误，请检查网络连接后重试。');
+        addToast('网络错误，请检查网络连接后重试。', 'error');
       }
     } finally {
       setIsLoading(false);
@@ -58,9 +55,6 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
             <h1>找回密码</h1>
             <p>输入您的注册邮箱</p>
           </div>
-
-          {error && <div className="error-message">{error}</div>}
-          {message && <div className="success-message">{message}</div>}
 
           <form onSubmit={handleSubmit} className="login-form">
             <div className="form-group">

@@ -83,17 +83,23 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         Optional<User> userOptional = userService.findByEmail(request.getEmail());
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 String token = jwtUtil.generateToken(user.getId(), user.getEmail());
                 return ResponseEntity.ok(new AuthResponse(token, convertToUserResponse(user)));
+            } else {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "密码错误");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
         }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "用户不存在");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     @GetMapping("/{id}")

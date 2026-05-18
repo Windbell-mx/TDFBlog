@@ -7,9 +7,10 @@ import { userApi, articleApi, type Article } from '../services/api';
 
 interface MainPageProps {
   onLogout: () => void;
+  addToast: (message: string, type: 'success' | 'error' | 'info', duration?: number) => void;
 }
 
-const MainPage = ({ onLogout }: MainPageProps) => {
+const MainPage = ({ onLogout, addToast }: MainPageProps) => {
   
   const [currentModule, setCurrentModule] = useState('home');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
@@ -85,11 +86,12 @@ const MainPage = ({ onLogout }: MainPageProps) => {
         setLatestArticles(sortedArticles.slice(0, 2)); // 只显示最新的2篇文章
       } catch (error) {
         console.error('获取最新文章失败:', error);
+        addToast('获取最新文章失败', 'error');
       }
     };
 
     fetchLatestArticles();
-  }, []);
+  }, [addToast]);
 
   return (
     <div className="main-page-container">
@@ -207,13 +209,13 @@ const MainPage = ({ onLogout }: MainPageProps) => {
           </div>
         )}
         {currentModule === 'community' && selectedArticle === null && (
-          <Home onArticleClick={handleArticleClick} onAuthorClick={handleAuthorClick} />
+          <Home onArticleClick={handleArticleClick} onAuthorClick={handleAuthorClick} addToast={addToast} />
         )}
         {currentModule === 'community' && selectedArticle !== null && (
-          <ArticleDetail article={selectedArticle} onBack={handleBackFromArticle} onAuthorClick={handleAuthorClick} />
+          <ArticleDetail article={selectedArticle} onBack={handleBackFromArticle} onAuthorClick={handleAuthorClick} addToast={addToast} />
         )}
         {currentModule === 'personal' && (
-          <Profile onLogout={handleLogout} viewedAuthor={viewedAuthor} onBack={handleBackFromAuthor} />
+          <Profile onLogout={handleLogout} viewedAuthor={viewedAuthor} onBack={handleBackFromAuthor} addToast={addToast} />
         )}
       </main>
     </div>

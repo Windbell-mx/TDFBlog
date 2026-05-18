@@ -5,9 +5,10 @@ interface ArticleDetailProps {
   article: ApiArticle;
   onBack: () => void;
   onAuthorClick?: (authorId: number, authorName: string) => void;
+  addToast: (message: string, type: 'success' | 'error' | 'info', duration?: number) => void;
 }
 
-const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthorClick }) => {
+const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthorClick, addToast }) => {
   const [isCollected, setIsCollected] = useState(false);
   const [isLoadingCollection, setIsLoadingCollection] = useState(false);
 
@@ -41,7 +42,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthor
   const handleToggleCollection = async () => {
     const userId = getCurrentUserId();
     if (!userId) {
-      alert('请先登录');
+      addToast('请先登录', 'error');
       return;
     }
 
@@ -50,18 +51,20 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthor
     try {
       if (isCollected) {
         console.log('执行取消收藏操作');
-        const response = await collectionApi.removeCollection(userId, article.id);
-        console.log('取消收藏成功:', response);
+        await collectionApi.removeCollection(userId, article.id);
+        console.log('取消收藏成功');
         setIsCollected(false);
+        addToast('已取消收藏', 'success');
       } else {
         console.log('执行收藏操作');
-        const response = await collectionApi.addCollection(userId, article.id);
-        console.log('收藏成功:', response);
+        await collectionApi.addCollection(userId, article.id);
+        console.log('收藏成功');
         setIsCollected(true);
+        addToast('收藏成功', 'success');
       }
     } catch (error) {
       console.error('收藏操作失败:', error);
-      alert('操作失败，请稍后重试');
+      addToast('操作失败，请稍后重试', 'error');
     } finally {
       setIsLoadingCollection(false);
       console.log('收藏操作结束');

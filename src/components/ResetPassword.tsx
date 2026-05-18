@@ -5,51 +5,48 @@ import { useSearchParams } from 'react-router-dom';
 
 interface ResetPasswordProps {
   onBack: () => void;
+  addToast: (message: string, type: 'success' | 'error' | 'info', duration?: number) => void;
 }
 
-const ResetPassword = ({ onBack }: ResetPasswordProps) => {
+const ResetPassword = ({ onBack, addToast }: ResetPasswordProps) => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
     if (!token) {
-      setError('无效的重置链接，缺少token');
+      addToast('无效的重置链接，缺少token', 'error');
     }
-  }, [token]);
+  }, [token, addToast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
-    setMessage('');
 
     if (!token) {
-      setError('无效的重置链接');
+      addToast('无效的重置链接', 'error');
       setIsLoading(false);
       return;
     }
 
     if (!newPassword) {
-      setError('请输入新密码');
+      addToast('请输入新密码', 'error');
       setIsLoading(false);
       return;
     }
 
     if (newPassword.length < 6) {
-      setError('密码长度至少6位');
+      addToast('密码长度至少6位', 'error');
       setIsLoading(false);
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError('两次输入的密码不一致');
+      addToast('两次输入的密码不一致', 'error');
       setIsLoading(false);
       return;
     }
@@ -57,7 +54,7 @@ const ResetPassword = ({ onBack }: ResetPasswordProps) => {
     try {
       await userApi.resetPassword(token, newPassword);
       setIsSuccess(true);
-      setMessage('密码重置成功！');
+      addToast('密码重置成功！', 'success');
       setTimeout(() => {
         onBack();
       }, 2000);
@@ -65,12 +62,12 @@ const ResetPassword = ({ onBack }: ResetPasswordProps) => {
       console.error('重置密码失败:', err);
       if (err instanceof HttpError) {
         if (err.status === 400) {
-          setError('无效或已过期的重置链接');
+          addToast('无效或已过期的重置链接', 'error');
         } else {
-          setError(`请求失败，请稍后重试。错误码: ${err.status}`);
+          addToast(`请求失败，请稍后重试。错误码: ${err.status}`, 'error');
         }
       } else {
-        setError('网络错误，请检查网络连接后重试。');
+        addToast('网络错误，请检查网络连接后重试。', 'error');
       }
     } finally {
       setIsLoading(false);
@@ -86,7 +83,6 @@ const ResetPassword = ({ onBack }: ResetPasswordProps) => {
               <h1>链接无效</h1>
               <p>抱歉，此重置链接无效或已过期</p>
             </div>
-            <div className="error-message">无效的重置链接</div>
             <button onClick={onBack} className="login-button">
               返回登录
             </button>
@@ -115,9 +111,6 @@ const ResetPassword = ({ onBack }: ResetPasswordProps) => {
             <h1>{isSuccess ? '成功' : '设置新密码'}</h1>
             <p>{isSuccess ? '请使用新密码登录' : '请输入您的新密码'}</p>
           </div>
-
-          {error && <div className="error-message">{error}</div>}
-          {message && <div className="success-message">{message}</div>}
 
           {!isSuccess && (
             <form onSubmit={handleSubmit} className="login-form">

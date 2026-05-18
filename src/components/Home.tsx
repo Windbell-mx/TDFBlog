@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import '../styles/Home.css';
 import ArticleCard from './ArticleCard';
 import CreateArticle from './CreateArticle';
-import ToastManager from './ToastManager';
 import { articleApi, getCurrentUserId, type Article as ApiArticle } from '../services/api';
 
 interface Author {
@@ -15,23 +14,16 @@ interface Author {
 interface HomeProps {
   onArticleClick?: (article: ApiArticle) => void;
   onAuthorClick?: (authorId: number, authorName: string) => void;
+  addToast: (message: string, type: 'success' | 'error' | 'info', duration?: number) => void;
 }
 
-interface Toast {
-  id: string;
-  message: string;
-  type: 'success' | 'error' | 'info';
-  duration?: number;
-}
-
-const Home = ({ onArticleClick, onAuthorClick }: HomeProps) => {
+const Home = ({ onArticleClick, onAuthorClick, addToast }: HomeProps) => {
   const [currentPage, setCurrentPage] = useState('home');
   const [searchTerm, setSearchTerm] = useState('');
   const [articles, setArticles] = useState<ApiArticle[]>([]);
   const [popularAuthors, setPopularAuthors] = useState<Author[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [toasts, setToasts] = useState<Toast[]>([]);
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -41,6 +33,7 @@ const Home = ({ onArticleClick, onAuthorClick }: HomeProps) => {
         setArticles(articlesData);
       } catch (error) {
         console.error('获取文章失败:', error);
+        addToast('获取文章失败', 'error');
       } finally {
         setIsLoading(false);
       }
@@ -52,12 +45,13 @@ const Home = ({ onArticleClick, onAuthorClick }: HomeProps) => {
         setPopularAuthors(authorsData);
       } catch (error) {
         console.error('获取热门作者失败:', error);
+        addToast('获取热门作者失败', 'error');
       }
     };
 
     fetchArticles();
     fetchAuthors();
-  }, []);
+  }, [addToast]);
 
   const filteredArticles = articles.filter(article => {
     const searchLower = searchTerm.toLowerCase();
@@ -72,15 +66,6 @@ const Home = ({ onArticleClick, onAuthorClick }: HomeProps) => {
     history.pushState({ page: 'createArticle' }, '', `/#create-article`);
   };
 
-  const showToast = (message: string, type: 'success' | 'error' | 'info', duration: number = 3000) => {
-    const id = Date.now().toString();
-    setToasts(prev => [...prev, { id, message, type, duration }]);
-  };
-
-  const handleCloseToast = (id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
-  };
-
   const handleSaveArticle = async (article: {
     title: string;
     content: string;
@@ -91,7 +76,7 @@ const Home = ({ onArticleClick, onAuthorClick }: HomeProps) => {
     try {
       const currentUserId = getCurrentUserId();
       if (!currentUserId) {
-        showToast('请先登录后再发布文章', 'error');
+        addToast('请先登录后再发布文章', 'error');
         return;
       }
 
@@ -107,10 +92,10 @@ const Home = ({ onArticleClick, onAuthorClick }: HomeProps) => {
       setArticles(data);
       setCurrentPage('home');
       history.pushState({ page: 'home' }, '', `/#home`);
-      showToast('文章发布成功！', 'success');
+      addToast('文章发布成功！', 'success');
     } catch (error) {
       console.error('保存文章失败:', error);
-      showToast('保存文章失败，请稍后重试', 'error');
+      addToast('保存文章失败，请稍后重试', 'error');
     }
   };
 
@@ -315,8 +300,6 @@ const Home = ({ onArticleClick, onAuthorClick }: HomeProps) => {
           onSave={handleSaveArticle}
         />
       )}
-
-      <ToastManager toasts={toasts} onClose={handleCloseToast} />
     </div>
   );
 };

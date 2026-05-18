@@ -5,9 +5,10 @@ import { userApi, HttpError } from '../services/api';
 
 interface LoginProps {
   onLogin: () => void;
+  addToast: (message: string, type: 'success' | 'error' | 'info', duration?: number) => void;
 }
 
-const Login = ({ onLogin }: LoginProps) => {
+const Login = ({ onLogin, addToast }: LoginProps) => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState(() => {
     const savedEmail = localStorage.getItem('rememberedEmail');
@@ -23,8 +24,6 @@ const Login = ({ onLogin }: LoginProps) => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -37,24 +36,22 @@ const Login = ({ onLogin }: LoginProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
-    setSuccess('');
 
     // 验证表单
     if (isLogin) {
       if (!formData.email || !formData.password) {
-        setError('请填写所有必填字段');
+        addToast('请填写所有必填字段', 'error');
         setIsLoading(false);
         return;
       }
     } else {
       if (!formData.email || !formData.password || !formData.confirmPassword) {
-        setError('请填写所有必填字段');
+        addToast('请填写所有必填字段', 'error');
         setIsLoading(false);
         return;
       }
       if (formData.password !== formData.confirmPassword) {
-        setError('两次输入的密码不一致');
+        addToast('两次输入的密码不一致', 'error');
         setIsLoading(false);
         return;
       }
@@ -63,11 +60,10 @@ const Login = ({ onLogin }: LoginProps) => {
     try {
       if (isLogin) {
         // 登录
-        const response = await userApi.login({
+        await userApi.login({
           email: formData.email,
           password: formData.password
         });
-        console.log('登录成功:', response);
 
         // 处理记住我功能
         if (rememberMe) {
@@ -78,16 +74,16 @@ const Login = ({ onLogin }: LoginProps) => {
           localStorage.removeItem('rememberedEmail');
         }
 
+        addToast('登录成功！', 'success');
         onLogin();
       } else {
         // 注册
-        const response = await userApi.register({
+        await userApi.register({
           username: formData.email.split('@')[0], // 使用邮箱前缀作为用户名
           email: formData.email,
           password: formData.password
         });
-        console.log('注册成功:', response);
-        setSuccess('注册成功！请使用注册的邮箱和密码登录。');
+        addToast('注册成功！请使用注册的邮箱和密码登录。', 'success');
         // 注册成功后自动切换到登录模式
         setTimeout(() => {
           setIsLogin(true);
@@ -96,23 +92,20 @@ const Login = ({ onLogin }: LoginProps) => {
             password: '',
             confirmPassword: ''
           });
-          setSuccess('');
-        }, 2000);
+        }, 1500);
       }
     } catch (err: any) {
       console.error('认证失败:', err);
       if (err instanceof HttpError) {
         if (err.status === 409) {
-          // 邮箱已被注册
-          setError('该邮箱已被注册，请使用该邮箱登录或使用其他邮箱注册。');
-        } else if (err.status === 401) {
-          // 登录失败
-          setError('邮箱或密码错误，请检查后重新输入。');
+          addToast('该邮箱已被注册，请使用该邮箱登录或使用其他邮箱注册。', 'error');
+        } else if (err.status === 400) {
+          addToast(err.errorMessage || '邮箱或密码错误，请检查后重新输入。', 'error');
         } else {
-          setError(`操作失败，请稍后重试。错误码: ${err.status}`);
+          addToast(`操作失败，请稍后重试。错误码: ${err.status}`, 'error');
         }
       } else {
-        setError('网络错误，请检查网络连接后重试。');
+        addToast('网络错误，请检查网络连接后重试。', 'error');
       }
     } finally {
       setIsLoading(false);
@@ -121,8 +114,6 @@ const Login = ({ onLogin }: LoginProps) => {
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
-    setError('');
-    setSuccess('');
     if (!rememberMe) {
       setFormData({
         email: '',
@@ -164,9 +155,6 @@ const Login = ({ onLogin }: LoginProps) => {
             <h1>{isLogin ? '登录' : '注册'}</h1>
             <p>{isLogin ? '请输入您的账户信息' : '创建新账户'}</p>
           </div>
-
-          {error && <div className="error-message">{error}</div>}
-          {success && <div className="success-message">{success}</div>}
 
           <form onSubmit={handleSubmit} className="login-form">
             <div className="form-group">

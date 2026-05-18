@@ -77,19 +77,24 @@ export const isAuthenticated = (): boolean => {
   return !!getToken();
 };
 
-// 自定义错误类，包含HTTP状态码
+// 自定义错误类，包含HTTP状态码和错误信息
 export class HttpError extends Error {
   status: number;
+  errorMessage: string;
 
-  constructor(message: string, status: number) {
+  constructor(message: string, status: number, errorMessage?: string) {
     super(message);
     this.status = status;
+    this.errorMessage = errorMessage || message;
     this.name = 'HttpError';
   }
 }
 
 // 通用请求方法
-async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(
+  url: string,
+  options: RequestInit & { skipAuthRedirect?: boolean } = {}
+): Promise<T> {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}${url}`, {
     ...options,
@@ -105,11 +110,32 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   }
 
   if (!response.ok) {
-    if (response.status === 401) {
+    let errorMessage = '请求失败';
+    try {
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await response.json();
+        if (errorData.error) {
+          errorMessage = errorData.error;
+        }
+      } else {
+        const text = await response.text();
+        if (text) {
+          errorMessage = text;
+        }
+      }
+    } catch {
+      // 无法解析错误响应，使用默认消息
+    }
+
+    // 只有在不是登录/注册接口，且没有设置skipAuthRedirect的情况下，才处理401
+    if (response.status === 401 && !options.skipAuthRedirect && 
+        !url.includes('/users/login') && !url.includes('/users/register')) {
       clearToken();
       window.location.href = '/';
     }
-    throw new HttpError(`HTTP error! status: ${response.status}`, response.status);
+    
+    throw new HttpError(`HTTP error! status: ${response.status}`, response.status, errorMessage);
   }
 
   // 检查响应是否有body
@@ -127,6 +153,7 @@ export const userApi = {
     const response = await request<{ token: string; user: User }>('/users/register', {
       method: 'POST',
       body: JSON.stringify(user),
+      skipAuthRedirect: true,
     });
     setToken(response.token);
     setUser(response.user);
@@ -137,6 +164,7 @@ export const userApi = {
     const response = await request<{ token: string; user: User }>('/users/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
+      skipAuthRedirect: true,
     });
     setToken(response.token);
     setUser(response.user);
