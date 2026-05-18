@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -47,8 +48,32 @@ public class JwtUtil {
                 .compact();
     }
 
-    // 从token中获取claims
     private Claims getClaimsFromToken(String token) {
+        if (token == null || token.isEmpty()) {
+            throw new SignatureException("JWT token cannot be null or empty");
+        }
+
+        String[] parts = token.split("\\.");
+        if (parts.length != 3) {
+            throw new SignatureException("Invalid JWT token format");
+        }
+
+        try {
+            String headerJson = new String(java.util.Base64.getUrlDecoder().decode(parts[0]), StandardCharsets.UTF_8);
+            if (headerJson.contains("\"alg\":")) {
+                int algStart = headerJson.indexOf("\"alg\":") + 6;
+                int algEnd = headerJson.indexOf("\"", algStart);
+                if (algStart > 5 && algEnd > algStart) {
+                    String alg = headerJson.substring(algStart, algEnd).trim();
+                    if ("none".equalsIgnoreCase(alg)) {
+                        throw new SignatureException("Algorithm 'none' is not allowed");
+                    }
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            throw new SignatureException("Invalid JWT header encoding");
+        }
+
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
