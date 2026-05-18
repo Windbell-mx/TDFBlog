@@ -41,6 +41,7 @@ public class JwtUtil {
         Date expirationDate = new Date(now.getTime() + expiration * 1000);
 
         return Jwts.builder()
+                .setHeaderParam("typ", "JWT")
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expirationDate)
