@@ -62,8 +62,8 @@ minio:
   bucketName: tdfblog
 
 jwt:
-  secret: tech_forum_secret_key_2026_this_is_a_very_long_secret_key_for_jwt_token_generation
-  expiration: 86400
+  secret: ${JWT_SECRET:tech_forum_secret_key_2026_this_is_a_very_long_secret_key_for_jwt_token_generation}
+  expiration: ${JWT_EXPIRATION:86400}
 
 frontend:
   url: http://localhost:5173
