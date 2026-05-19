@@ -63,7 +63,7 @@ const Login = ({ onLogin, addToast }: LoginProps) => {
     try {
       if (isLogin) {
         // 登录
-        const response = await userApi.login({
+        await userApi.login({
           email: formData.email,
           password: formData.password,
           captchaToken: captchaToken
