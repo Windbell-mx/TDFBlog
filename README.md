@@ -125,8 +125,8 @@ MAIL_PASSWORD=your_email_password
 # MinIO Configuration
 MINIO_INTERNAL_URL=http://127.0.0.1:9000
 MINIO_PUBLIC_URL=http://localhost:9000
-MINIO_ACCESS_KEY=minioadmin
-MINIO_SECRET_KEY=minioadmin
+MINIO_USERNAME=minioadmin
+MINIO_PASSWORD=minioadmin
 MINIO_BUCKET_NAME=tdfblog
 ```
 

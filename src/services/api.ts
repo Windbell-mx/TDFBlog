@@ -160,7 +160,7 @@ export const userApi = {
     return response;
   },
 
-  login: async (credentials: { email: string; password: string }) => {
+  login: async (credentials: { email: string; password: string; captchaToken?: string }) => {
     const response = await request<{ token: string; user: User }>('/users/login', {
       method: 'POST',
       body: JSON.stringify(credentials),

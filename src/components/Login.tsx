@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/Login.css';
 import { userApi, HttpError } from '../services/api';
+import SliderCaptcha from './SliderCaptcha';
 
 interface LoginProps {
   onLogin: () => void;
@@ -24,6 +25,8 @@ const Login = ({ onLogin, addToast }: LoginProps) => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [showCaptcha, setShowCaptcha] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -60,9 +63,10 @@ const Login = ({ onLogin, addToast }: LoginProps) => {
     try {
       if (isLogin) {
         // 登录
-        await userApi.login({
+        const response = await userApi.login({
           email: formData.email,
-          password: formData.password
+          password: formData.password,
+          captchaToken: captchaToken
         });
 
         // 处理记住我功能
@@ -75,6 +79,7 @@ const Login = ({ onLogin, addToast }: LoginProps) => {
         }
 
         addToast('登录成功！', 'success');
+        setCaptchaToken('');
         onLogin();
       } else {
         // 注册
@@ -100,7 +105,13 @@ const Login = ({ onLogin, addToast }: LoginProps) => {
         if (err.status === 409) {
           addToast('该邮箱已被注册，请使用该邮箱登录或使用其他邮箱注册。', 'error');
         } else if (err.status === 400) {
-          addToast(err.errorMessage || '邮箱或密码错误，请检查后重新输入。', 'error');
+          if (err.errorMessage && err.errorMessage.includes('人机验证')) {
+            setCaptchaToken('');
+            setShowCaptcha(true);
+          } else {
+            setCaptchaToken('');
+            addToast(err.errorMessage || '邮箱或密码错误，请检查后重新输入。', 'error');
+          }
         } else {
           addToast(`操作失败，请稍后重试。错误码: ${err.status}`, 'error');
         }
@@ -110,6 +121,16 @@ const Login = ({ onLogin, addToast }: LoginProps) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleCaptchaSuccess = (token: string) => {
+    setCaptchaToken(token);
+    setShowCaptcha(false);
+    addToast('验证成功，请重新输入密码登录', 'success');
+  };
+
+  const handleCaptchaClose = () => {
+    setShowCaptcha(false);
   };
 
   const toggleForm = () => {
@@ -231,6 +252,10 @@ const Login = ({ onLogin, addToast }: LoginProps) => {
           </div>
         </div>
       </div>
+      
+      {showCaptcha && (
+        <SliderCaptcha onSuccess={handleCaptchaSuccess} onClose={handleCaptchaClose} />
+      )}
     </div>
   );
 };

@@ -7,6 +7,7 @@ import com.techforum.backend.model.LoginRequest;
 import com.techforum.backend.model.RegisterRequest;
 import com.techforum.backend.model.ResetPasswordRequest;
 import com.techforum.backend.model.User;
+import com.techforum.backend.service.CaptchaService;
 import com.techforum.backend.service.EmailService;
 import com.techforum.backend.service.UserService;
 import com.techforum.backend.util.JwtUtil;
@@ -47,6 +48,9 @@ public class UserController {
     @Autowired
     private RedisUtil redisUtil;
 
+    @Autowired
+    private CaptchaService captchaService;
+
     private static final String USER_CACHE_KEY = "user:";
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -84,21 +88,66 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        Optional<User> userOptional = userService.findByEmail(request.getEmail());
+        String email = request.getEmail();
+        String captchaToken = request.getCaptchaToken();
+        boolean hasCaptchaToken = captchaToken != null && !captchaToken.isEmpty();
+        
+        boolean isCaptchaRequired = captchaService.isCaptchaRequired(email);
+        
+        if (isCaptchaRequired && !hasCaptchaToken) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "登录失败次数过多，请完成人机验证");
+            error.put("captchaRequired", true);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+
+        if (hasCaptchaToken) {
+            boolean isCaptchaValid = captchaService.validateCaptcha(captchaToken, 0);
+            if (!isCaptchaValid) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "验证码无效，请重新验证");
+                error.put("captchaRequired", true);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+            captchaService.resetFailedAttempts(email);
+        }
+
+        Optional<User> userOptional = userService.findByEmail(email);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                captchaService.resetFailedAttempts(email);
                 String token = jwtUtil.generateToken(user.getId(), user.getEmail());
                 return ResponseEntity.ok(new AuthResponse(token, convertToUserResponse(user)));
             } else {
-                Map<String, String> error = new HashMap<>();
+                captchaService.recordFailedAttempt(email);
+                int failedAttempts = captchaService.getFailedAttempts(email);
+                
+                Map<String, Object> error = new HashMap<>();
                 error.put("error", "密码错误");
+                error.put("remainingAttempts", Math.max(0, 3 - failedAttempts));
+                
+                if (failedAttempts >= 3) {
+                    error.put("captchaRequired", true);
+                    error.put("error", "登录失败次数过多，请完成人机验证");
+                }
+                
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
         }
 
-        Map<String, String> error = new HashMap<>();
+        captchaService.recordFailedAttempt(email);
+        int failedAttempts = captchaService.getFailedAttempts(email);
+        
+        Map<String, Object> error = new HashMap<>();
         error.put("error", "用户不存在");
+        error.put("remainingAttempts", Math.max(0, 3 - failedAttempts));
+        
+        if (failedAttempts >= 3) {
+            error.put("captchaRequired", true);
+            error.put("error", "登录失败次数过多，请完成人机验证");
+        }
+        
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 

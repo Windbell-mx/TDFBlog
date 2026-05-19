@@ -103,6 +103,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/login").permitAll()
                         .requestMatchers("/api/users/forgot-password").permitAll()
                         .requestMatchers("/api/users/reset-password").permitAll()
+                        .requestMatchers("/api/captcha/**").permitAll()
                         .requestMatchers("/api/articles/public/**").permitAll()
                         .requestMatchers("/api/articles/popular-authors").permitAll()
                         .requestMatchers("/api/articles").permitAll()
