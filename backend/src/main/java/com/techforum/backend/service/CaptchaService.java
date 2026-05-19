@@ -4,7 +4,6 @@ import com.techforum.backend.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -31,14 +30,6 @@ public class CaptchaService {
         int sliderHeight = 60;
         
         int targetPosition = ThreadLocalRandom.current().nextInt(100, backgroundWidth - sliderWidth - 20);
-        
-        Map<String, Object> captchaData = new HashMap<>();
-        captchaData.put("token", token);
-        captchaData.put("backgroundWidth", backgroundWidth);
-        captchaData.put("backgroundHeight", backgroundHeight);
-        captchaData.put("sliderWidth", sliderWidth);
-        captchaData.put("sliderHeight", sliderHeight);
-        captchaData.put("targetPosition", targetPosition);
         
         Map<String, Object> storedData = new HashMap<>();
         storedData.put("targetPosition", targetPosition);
