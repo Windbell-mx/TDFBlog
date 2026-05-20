@@ -1,5 +1,6 @@
 package com.techforum.backend.util;
 
+import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
@@ -36,25 +37,37 @@ public class MinioUtil {
             );
         }
 
-        return publicUrl + "/" + bucketName + "/" + fileName;
+        return fileName;
     }
 
-    public void deleteFile(String fileUrl) {
-        if (fileUrl == null || fileUrl.isEmpty()) {
+    public void deleteFile(String fileName) {
+        if (fileName == null || fileName.isEmpty()) {
             return;
         }
 
         try {
-            String objectName = fileUrl.substring(fileUrl.lastIndexOf("/" + bucketName + "/") + bucketName.length() + 2);
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
                             .bucket(bucketName)
-                            .object(objectName)
+                            .object(fileName)
                             .build()
             );
-            System.out.println("Minio旧文件已删除: " + objectName);
+            System.out.println("Minio旧文件已删除: " + fileName);
         } catch (Exception e) {
             System.err.println("删除Minio文件失败: " + e.getMessage());
         }
+    }
+
+    public InputStream getFile(String fileName) throws Exception {
+        return minioClient.getObject(
+                GetObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(fileName)
+                        .build()
+        );
+    }
+
+    public String getBucketName() {
+        return bucketName;
     }
 }

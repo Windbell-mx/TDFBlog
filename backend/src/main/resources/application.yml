@@ -72,5 +72,6 @@ app:
   security:
     cors:
       allowed-origins: http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:4173
+      allowed-origin-patterns: http://localhost:*,https://localhost:*
       allow-credentials: true
     debug: false

@@ -14,6 +14,7 @@ import com.techforum.backend.util.JwtUtil;
 import com.techforum.backend.util.MinioUtil;
 import com.techforum.backend.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,6 +52,9 @@ public class UserController {
     @Autowired
     private CaptchaService captchaService;
 
+    @Value("${app.security.cors.allowed-origin-patterns:http://localhost:*,https://localhost:*}")
+    private String mediaBaseUrl;
+
     private static final String USER_CACHE_KEY = "user:";
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -60,7 +64,7 @@ public class UserController {
         response.setUsername(user.getNickname());
         response.setNickname(user.getNickname());
         response.setEmail(user.getEmail());
-        response.setAvatar(user.getAvatar());
+        response.setAvatar(user.getAvatar() != null ? "/api/media/avatar/" + user.getAvatar() : null);
         response.setGender(user.getGender());
         response.setBio(user.getBio());
         response.setCreatedAt(user.getCreatedAt() != null ? user.getCreatedAt().format(FORMATTER) : null);
@@ -167,13 +171,13 @@ public class UserController {
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
 
-                String oldAvatarUrl = user.getAvatar();
-                if (oldAvatarUrl != null && !oldAvatarUrl.isEmpty()) {
-                    minioUtil.deleteFile(oldAvatarUrl);
+                String oldAvatar = user.getAvatar();
+                if (oldAvatar != null && !oldAvatar.isEmpty()) {
+                    minioUtil.deleteFile(oldAvatar);
                 }
 
-                String avatarUrl = minioUtil.uploadFile(file);
-                user.setAvatar(avatarUrl);
+                String fileName = minioUtil.uploadFile(file);
+                user.setAvatar(fileName);
                 userService.save(user);
 
                 try {
@@ -184,7 +188,7 @@ public class UserController {
                 }
 
                 Map<String, String> response = new HashMap<>();
-                response.put("avatar", avatarUrl);
+                response.put("avatar", "/api/media/avatar/" + fileName);
                 return ResponseEntity.ok(response);
             }
             return ResponseEntity.notFound().build();

@@ -35,6 +35,9 @@ public class SecurityConfig {
     @Value("${app.security.cors.allowed-origins:http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:4173}")
     private String allowedOrigins;
 
+    @Value("${app.security.cors.allowed-origin-patterns:http://localhost:*,https://localhost:*}")
+    private String allowedOriginPatterns;
+
     @Value("${app.security.cors.allow-credentials:true}")
     private boolean allowCredentials;
 
@@ -55,15 +58,17 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        List<String> originsList = Arrays.stream(allowedOrigins.split(","))
+        List<String> originPatterns = Arrays.stream(allowedOriginPatterns.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
-        if (debugMode || originsList.contains("*")) {
+        if (debugMode || originPatterns.contains("*")) {
             configuration.addAllowedOriginPattern("*");
         } else {
-            configuration.setAllowedOrigins(originsList);
+            for (String pattern : originPatterns) {
+                configuration.addAllowedOriginPattern(pattern);
+            }
         }
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));

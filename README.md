@@ -26,7 +26,7 @@
 ### 用户功能
 - 用户注册与登录（邮箱验证）
 - 个人资料编辑（昵称、性别、个人简介）
-- 头像上传（基于 Minio）
+- 头像上传（基于 Minio，通过后端代理访问）
 - 个人主页展示
 
 ### 文章功能
@@ -45,10 +45,12 @@
 - 滑块验证码验证（登录失败超过3次触发）
 - 使用 Redis 存储登录失败次数和验证码数据
 - 验证码验证成功后重置失败次数
+- 头像通过后端代理访问，隐藏MinIO真实地址
 
 ### 性能优化
 - Redis 缓存文章列表和热门作者数据
 - 数据获取优化，优先显示关键信息
+- 头像设置1年浏览器缓存
 
 ## 项目结构
 
@@ -56,7 +58,7 @@
 blog/
 ├── backend/                    # Spring Boot 后端
 │   ├── src/main/java/com/techforum/backend/
-│   │   ├── controller/         # REST API 控制器
+│   │   ├── controller/         # REST API 控制器（含媒体控制器）
 │   │   ├── service/            # 业务逻辑层
 │   │   ├── repository/         # 数据访问层
 │   │   ├── model/              # 数据库实体
@@ -172,6 +174,8 @@ cd backend
 mvn clean package -DskipTests
 ```
 
+**注意**：部署生产环境时，将 `jar` 包和 `.env` 文件放在同一目录，确保 `.env` 能被正确加载。
+
 ## 数据库初始化
 
 首次部署时，需要执行数据库初始化脚本：
@@ -216,12 +220,20 @@ SOURCE backend/database/schema.sql;
 - `PUT /api/notes/{id}` - 更新笔记
 - `DELETE /api/notes/{id}` - 删除笔记
 
+### 验证码接口
+- `GET /api/captcha/slider` - 获取滑块验证码配置
+- `POST /api/captcha/slider/validate` - 验证滑块位置
+
+### 媒体接口
+- `GET /api/media/avatar/{fileName}` - 获取头像（通过后端代理访问MinIO）
+
 ## 安全配置
 
 - JWT 密钥通过环境变量配置，不要硬编码
 - 数据库密码、Redis 密码等敏感信息存储在 `.env` 文件中
 - `.env` 文件已加入 `.gitignore`，不会提交到版本库
 - `.env.example` 提供了配置模板，不包含真实敏感信息
+- 头像通过后端 `/api/media/avatar/{fileName}` 代理访问，隐藏MinIO真实地址
 
 ## 常见问题
 
@@ -234,9 +246,33 @@ SOURCE backend/database/schema.sql;
 - 确保后端服务正在运行（http://localhost:8081）
 - 检查后端是否成功启动，无报错信息
 
+### 头像无法显示
+- 这是因为 Minio 服务未启动
+- 或者数据库中存储的头像文件名是旧的MinIO完整URL格式（需要重新上传头像）
+
 ### 头像上传失败
 - 这是因为 Minio 服务未启动，头像上传功能不可用
 - Minio 是可选功能，不影响其他功能使用
+
+## 架构说明
+
+### 头像代理访问
+
+为了安全起见，头像通过后端代理访问，而不是直接暴露MinIO地址：
+
+```
+前端请求头像 → /api/media/avatar/{filename} → MediaController → MinIO → 返回图片
+```
+
+**优点**：
+- 隐藏MinIO的真实地址和访问凭证
+- 统一的访问控制
+- 可以添加水印、防盗链等额外处理
+
+**数据存储**：
+- 数据库中只存储文件名（如 `uuid_avatar.jpg`）
+- 前端收到的头像URL格式：`/api/media/avatar/{filename}`
+- 后端MediaController从MinIO获取文件并返回给前端
 
 ## 许可证
 

@@ -167,7 +167,7 @@ public class ArticleService {
                     Map<String, Object> authorInfo = new HashMap<>();
                     authorInfo.put("id", user.getId());
                     authorInfo.put("nickname", user.getNickname());
-                    authorInfo.put("avatar", user.getAvatar());
+                    authorInfo.put("avatar", convertAvatarUrl(user.getAvatar()));
                     authorInfo.put("articleCount", articleCount);
                     result.add(authorInfo);
                 }
@@ -205,10 +205,17 @@ public class ArticleService {
             ArticleResponse.UserSummary userSummary = new ArticleResponse.UserSummary();
             userSummary.setId(article.getUser().getId());
             userSummary.setUsername(article.getUser().getNickname());
-            userSummary.setAvatar(article.getUser().getAvatar());
+            userSummary.setAvatar(convertAvatarUrl(article.getUser().getAvatar()));
             response.setUser(userSummary);
         }
 
         return response;
+    }
+
+    private String convertAvatarUrl(String fileName) {
+        if (fileName == null || fileName.isEmpty()) {
+            return null;
+        }
+        return "/api/media/avatar/" + fileName;
     }
 }

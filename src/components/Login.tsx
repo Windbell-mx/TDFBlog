@@ -40,7 +40,6 @@ const Login = ({ onLogin, addToast }: LoginProps) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // 验证表单
     if (isLogin) {
       if (!formData.email || !formData.password) {
         addToast('请填写所有必填字段', 'error');
@@ -62,14 +61,12 @@ const Login = ({ onLogin, addToast }: LoginProps) => {
 
     try {
       if (isLogin) {
-        // 登录
         await userApi.login({
           email: formData.email,
           password: formData.password,
           captchaToken: captchaToken
         });
 
-        // 处理记住我功能
         if (rememberMe) {
           localStorage.setItem('rememberMe', 'true');
           localStorage.setItem('rememberedEmail', formData.email);
@@ -82,14 +79,12 @@ const Login = ({ onLogin, addToast }: LoginProps) => {
         setCaptchaToken('');
         onLogin();
       } else {
-        // 注册
         await userApi.register({
-          username: formData.email.split('@')[0], // 使用邮箱前缀作为用户名
+          username: formData.email.split('@')[0],
           email: formData.email,
           password: formData.password
         });
         addToast('注册成功！请使用注册的邮箱和密码登录。', 'success');
-        // 注册成功后自动切换到登录模式
         setTimeout(() => {
           setIsLogin(true);
           setFormData({
@@ -152,11 +147,11 @@ const Login = ({ onLogin, addToast }: LoginProps) => {
 
   return (
     <div className="login-container">
-      <div className="animation-side" onClick={toggleForm} style={{ cursor: 'pointer' }}>
+      <div className="animation-side">
         <div className="animation-content">
           <h2>{isLogin ? '欢迎回来' : '创建账户'}</h2>
           <p>{isLogin ? '登录以访问您的账户' : '注册新账户开始您的旅程'}</p>
-          <div className="toggle-wrapper">
+          <div className="toggle-wrapper" onClick={toggleForm} style={{ cursor: 'pointer' }}>
             <div className="toggle-track">
               <div className={`toggle-thumb ${!isLogin ? 'right' : ''}`}></div>
             </div>
