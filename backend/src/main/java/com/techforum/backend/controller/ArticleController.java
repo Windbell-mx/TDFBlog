@@ -80,7 +80,7 @@ public class ArticleController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ArticleResponse>> getArticlesByUserId(@PathVariable Long userId) {
+    public ResponseEntity<List<ArticleResponse>> getArticlesByUserId(@PathVariable String userId) {
         List<ArticleResponse> articles = articleService.findByUserId(userId);
         return ResponseEntity.ok(articles);
     }

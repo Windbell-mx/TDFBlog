@@ -1,7 +1,7 @@
 package com.techforum.backend.dto;
 
 public class UserResponse {
-    private Long id;
+    private String id;
     private String username;
     private String nickname;
     private String email;
@@ -14,7 +14,7 @@ public class UserResponse {
     public UserResponse() {
     }
 
-    public UserResponse(Long id, String username, String nickname, String email,
+    public UserResponse(String id, String username, String nickname, String email,
                        String avatar, String gender, String bio, String createdAt, String updatedAt) {
         this.id = id;
         this.username = username;
@@ -27,11 +27,11 @@ public class UserResponse {
         this.updatedAt = updatedAt;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

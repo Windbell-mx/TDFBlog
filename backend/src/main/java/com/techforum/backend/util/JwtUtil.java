@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,13 +24,23 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expiration;
 
+    public static String generateEmailHash(String email) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(email.toLowerCase().getBytes(StandardCharsets.UTF_8));
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(hash).substring(0, 16);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate email hash", e);
+        }
+    }
+
     private SecretKey getSigningKey() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
     // 生成token
-    public String generateToken(Long userId, String username) {
+    public String generateToken(String userId, String username) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("username", username);
@@ -93,9 +105,9 @@ public class JwtUtil {
     }
 
     // 从token中获取用户ID
-    public Long getUserIdFromToken(String token) {
+    public String getUserIdFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
-        return Long.parseLong(claims.get("userId").toString());
+        return claims.get("userId").toString();
     }
 
     // 从token中获取用户名

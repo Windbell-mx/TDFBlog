@@ -18,9 +18,9 @@ public class CollectionController {
     private CollectionService collectionService;
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> addCollection(@RequestBody Map<String, Long> request) {
-        Long userId = request.get("userId");
-        Long articleId = request.get("articleId");
+    public ResponseEntity<Map<String, Object>> addCollection(@RequestBody Map<String, String> request) {
+        String userId = request.get("userId");
+        Long articleId = Long.valueOf(request.get("articleId"));
         
         Collection collection = collectionService.addCollection(userId, articleId);
         
@@ -39,7 +39,7 @@ public class CollectionController {
 
     @DeleteMapping
     public ResponseEntity<Map<String, Object>> removeCollection(
-            @RequestParam Long userId,
+            @RequestParam String userId,
             @RequestParam Long articleId) {
         
         collectionService.removeCollection(userId, articleId);
@@ -51,10 +51,10 @@ public class CollectionController {
     }
     
     @PostMapping("/remove")
-    public ResponseEntity<Map<String, Object>> removeCollectionPost(@RequestBody Map<String, Long> request) {
+    public ResponseEntity<Map<String, Object>> removeCollectionPost(@RequestBody Map<String, String> request) {
         try {
-            Long userId = request.get("userId");
-            Long articleId = request.get("articleId");
+            String userId = request.get("userId");
+            Long articleId = Long.valueOf(request.get("articleId"));
             
             System.out.println("取消收藏请求: userId=" + userId + ", articleId=" + articleId);
             
@@ -82,7 +82,7 @@ public class CollectionController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Map<String, Object>>> getUserCollections(@PathVariable Long userId) {
+    public ResponseEntity<List<Map<String, Object>>> getUserCollections(@PathVariable String userId) {
         List<Collection> collections = collectionService.getUserCollections(userId);
         
         List<Map<String, Object>> response = collections.stream()
@@ -104,7 +104,7 @@ public class CollectionController {
 
     @GetMapping("/check")
     public ResponseEntity<Map<String, Boolean>> checkCollection(
-            @RequestParam Long userId,
+            @RequestParam String userId,
             @RequestParam Long articleId) {
         boolean isCollected = collectionService.isCollected(userId, articleId);
         

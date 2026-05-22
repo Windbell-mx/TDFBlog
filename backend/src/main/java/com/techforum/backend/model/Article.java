@@ -22,7 +22,7 @@ public class Article implements Serializable {
     private String category;
 
     @Column(name = "user_id")
-    private Long userId;
+    private String userId;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
@@ -82,11 +82,11 @@ public class Article implements Serializable {
         this.category = category;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

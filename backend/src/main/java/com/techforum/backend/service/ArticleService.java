@@ -108,7 +108,7 @@ public class ArticleService {
         }
     }
 
-    public List<ArticleResponse> findByUserId(Long userId) {
+    public List<ArticleResponse> findByUserId(String userId) {
         return articleRepository.findByUserId(userId).stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
@@ -146,19 +146,19 @@ public class ArticleService {
         try {
             List<Article> allArticles = articleRepository.findAll();
             
-            Map<Long, Long> userArticleCount = new HashMap<>();
+            Map<String, Long> userArticleCount = new HashMap<>();
             for (Article article : allArticles) {
-                Long userId = article.getUserId();
+                String userId = article.getUserId();
                 userArticleCount.put(userId, userArticleCount.getOrDefault(userId, 0L) + 1);
             }
             
-            List<Map.Entry<Long, Long>> sortedEntries = new ArrayList<>(userArticleCount.entrySet());
+            List<Map.Entry<String, Long>> sortedEntries = new ArrayList<>(userArticleCount.entrySet());
             sortedEntries.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
             
             List<Map<String, Object>> result = new ArrayList<>();
             
-            for (Map.Entry<Long, Long> entry : sortedEntries) {
-                Long userId = entry.getKey();
+            for (Map.Entry<String, Long> entry : sortedEntries) {
+                String userId = entry.getKey();
                 Long articleCount = entry.getValue();
                 
                 Optional<User> userOptional = userRepository.findById(userId);

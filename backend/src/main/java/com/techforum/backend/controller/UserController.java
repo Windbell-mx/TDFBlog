@@ -2,6 +2,7 @@ package com.techforum.backend.controller;
 
 import com.techforum.backend.dto.UserResponse;
 import com.techforum.backend.model.AuthResponse;
+import com.techforum.backend.model.DeleteAccountRequest;
 import com.techforum.backend.model.ForgotPasswordRequest;
 import com.techforum.backend.model.LoginRequest;
 import com.techforum.backend.model.RegisterRequest;
@@ -80,6 +81,7 @@ public class UserController {
         }
 
         User user = new User();
+        user.setId(JwtUtil.generateEmailHash(request.getEmail()));
         user.setEmail(request.getEmail());
         user.setNickname(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -156,7 +158,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable String id) {
         Optional<User> userOptional = userService.findById(id);
         if (userOptional.isPresent()) {
             return ResponseEntity.ok(convertToUserResponse(userOptional.get()));
@@ -165,7 +167,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}/avatar")
-    public ResponseEntity<Map<String, String>> uploadAvatar(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Map<String, String>> uploadAvatar(@PathVariable String id, @RequestParam("file") MultipartFile file) {
         try {
             Optional<User> userOptional = userService.findById(id);
             if (userOptional.isPresent()) {
@@ -202,7 +204,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody Map<String, String> updates) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable String id, @RequestBody Map<String, String> updates) {
         Optional<User> userOptional = userService.findById(id);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
@@ -232,7 +234,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         Optional<User> userOptional = userService.findById(id);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
@@ -284,5 +286,39 @@ public class UserController {
         }
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("无效的重置链接");
+    }
+
+    @PostMapping("/delete-account")
+    public ResponseEntity<Map<String, Object>> deleteAccount(@RequestBody DeleteAccountRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        
+        Optional<User> userOptional = userService.findById(request.getUserId());
+        if (!userOptional.isPresent()) {
+            response.put("success", false);
+            response.put("message", "用户不存在");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        
+        User user = userOptional.get();
+        
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            response.put("success", false);
+            response.put("message", "密码错误");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        
+        try {
+            userService.deleteAccount(request.getUserId());
+            
+            response.put("success", true);
+            response.put("message", "账户已成功注销");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("注销账户失败: " + e.getMessage());
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "注销失败，请稍后重试");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 }

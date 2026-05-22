@@ -1,5 +1,6 @@
 package com.techforum.backend.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,8 +21,11 @@ public class Note {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    @Column(name = "user_id")
+    private String userId;
+
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
     // Getters and Setters
@@ -63,6 +67,14 @@ public class Note {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public User getUser() {

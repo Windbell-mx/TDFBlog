@@ -8,7 +8,7 @@ public class ArticleResponse {
     private String title;
     private String content;
     private String category;
-    private Long userId;
+    private String userId;
     private UserSummary user;
     private String coverImage;
     private int readCount;
@@ -20,15 +20,15 @@ public class ArticleResponse {
     private LocalDateTime updatedAt;
 
     public static class UserSummary {
-        private Long id;
+        private String id;
         private String username;
         private String avatar;
 
-        public Long getId() {
+        public String getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public void setId(String id) {
             this.id = id;
         }
 
@@ -81,11 +81,11 @@ public class ArticleResponse {
         this.category = category;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

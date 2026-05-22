@@ -25,9 +25,11 @@
 
 ### 用户功能
 - 用户注册与登录（邮箱验证）
+- 用户ID基于邮箱Hash生成（安全且唯一）
 - 个人资料编辑（昵称、性别、个人简介）
 - 头像上传（基于 Minio，通过后端代理访问）
 - 个人主页展示
+- 账户注销（需密码验证，删除所有相关数据）
 
 ### 文章功能
 - 文章发布（支持技术文章和笔记类型）
@@ -42,10 +44,12 @@
 - 最新文章展示
 
 ### 安全功能
+- 用户ID基于邮箱SHA-256 Hash生成（16位URL安全Base64编码）
 - 滑块验证码验证（登录失败超过3次触发）
 - 使用 Redis 存储登录失败次数和验证码数据
 - 验证码验证成功后重置失败次数
 - 头像通过后端代理访问，隐藏MinIO真实地址
+- 注销账户需密码验证
 
 ### 性能优化
 - Redis 缓存文章列表和热门作者数据
@@ -75,6 +79,8 @@ blog/
 │   │   └── application.yml     # 应用配置
 │   ├── database/
 │   │   └── schema.sql          # 数据库初始化脚本
+│   ├── migrate_user_id.sql     # 用户ID迁移脚本
+│   ├── MIGRATION_GUIDE.md      # 迁移指南
 │   ├── .env.example            # 环境变量配置模板
 │   └── pom.xml                 # Maven 配置
 ├── src/                        # React 前端
@@ -183,6 +189,8 @@ mvn clean package -DskipTests
 
 ## 数据库初始化
 
+### 首次部署
+
 首次部署时，需要执行数据库初始化脚本：
 
 ```bash
@@ -196,6 +204,19 @@ USE tech_forum;
 SOURCE backend/database/schema.sql;
 ```
 
+### 数据库迁移（重要）
+
+如果是从旧版本（用户ID为Long类型）升级，需要执行迁移脚本：
+
+```bash
+# 1. 先备份数据库！
+
+# 2. 执行迁移脚本
+mysql -u root -p tech_forum < backend/migrate_user_id.sql
+```
+
+详细说明请参考 [MIGRATION_GUIDE.md](backend/MIGRATION_GUIDE.md)
+
 ## API 接口
 
 ### 用户接口
@@ -204,7 +225,10 @@ SOURCE backend/database/schema.sql;
 - `GET /api/users/{id}` - 获取用户信息
 - `PUT /api/users/{id}` - 更新用户信息
 - `POST /api/users/{id}/avatar` - 上传头像
-- `DELETE /api/users/{id}` - 注销账号
+- `POST /api/users/delete-account` - 注销账号（需密码验证）
+- `DELETE /api/users/{id}` - 删除用户（管理员）
+- `POST /api/users/forgot-password` - 忘记密码
+- `POST /api/users/reset-password` - 重置密码
 
 ### 文章接口
 - `GET /api/articles` - 获取文章列表
@@ -213,11 +237,13 @@ SOURCE backend/database/schema.sql;
 - `PUT /api/articles/{id}` - 更新文章
 - `DELETE /api/articles/{id}` - 删除文章
 - `GET /api/articles/user/{userId}` - 获取用户的文章
+- `POST /api/articles/{id}/read` - 增加阅读量
 
 ### 收藏接口
 - `POST /api/collections` - 添加收藏
 - `POST /api/collections/remove` - 取消收藏
 - `GET /api/collections/user/{userId}` - 获取用户收藏列表
+- `GET /api/collections/check` - 检查是否已收藏
 
 ### 笔记接口
 - `GET /api/notes/user/{userId}` - 获取用户笔记
@@ -232,6 +258,20 @@ SOURCE backend/database/schema.sql;
 ### 媒体接口
 - `GET /api/media/avatar/{fileName}` - 获取头像（通过后端代理访问MinIO）
 
+## 用户ID生成机制
+
+用户ID不再使用自增Long类型，而是基于邮箱生成：
+
+1. 将用户邮箱转为小写
+2. 计算 SHA-256 哈希值
+3. 使用 Base64 URL 安全编码
+4. 取前16个字符作为用户ID
+
+**优点**：
+- 相同邮箱始终生成相同ID
+- 不可预测，提高安全性
+- 无需额外索引即可通过邮箱快速查找
+
 ## 安全配置
 
 - JWT 密钥通过环境变量配置，不要硬编码
@@ -239,6 +279,7 @@ SOURCE backend/database/schema.sql;
 - `.env` 文件已加入 `.gitignore`，不会提交到版本库
 - `.env.example` 提供了配置模板，不包含真实敏感信息
 - 头像通过后端 `/api/media/avatar/{fileName}` 代理访问，隐藏MinIO真实地址
+- 用户ID基于邮箱Hash生成，不可预测
 
 ## 常见问题
 
@@ -259,6 +300,10 @@ SOURCE backend/database/schema.sql;
 - 这是因为 Minio 服务未启动，头像上传功能不可用
 - Minio 是可选功能，不影响其他功能使用
 
+### 登录后提示用户不存在
+- 如果是从旧版本升级，需要执行 `migrate_user_id.sql` 迁移脚本
+- 迁移后用户需要重新登录（JWT token格式已改变）
+
 ## 架构说明
 
 ### 头像代理访问
@@ -278,6 +323,22 @@ SOURCE backend/database/schema.sql;
 - 数据库中只存储文件名（如 `uuid_avatar.jpg`）
 - 前端收到的头像URL格式：`/api/media/avatar/{filename}`
 - 后端MediaController从MinIO获取文件并返回给前端
+
+## 更新日志
+
+### v2.0.0
+- **重要变更**: 用户ID从自增Long改为邮箱Hash String
+- 新增账户注销功能（需密码验证）
+- 新增密码重置功能
+- 优化数据删除逻辑（级联删除用户相关数据）
+- 改进安全性（用户ID不可预测）
+
+### v1.0.0
+- 初始版本发布
+- 用户注册、登录、资料编辑
+- 文章发布、编辑、删除、收藏
+- 滑块验证码
+- Redis缓存优化
 
 ## 许可证
 

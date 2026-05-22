@@ -14,7 +14,7 @@ public class CollectionService {
     @Autowired
     private CollectionRepository collectionRepository;
 
-    public Collection addCollection(Long userId, Long articleId) {
+    public Collection addCollection(String userId, Long articleId) {
         if (collectionRepository.existsByUserIdAndArticleId(userId, articleId)) {
             return collectionRepository.findByUserIdAndArticleId(userId, articleId).orElse(null);
         }
@@ -26,19 +26,19 @@ public class CollectionService {
     }
 
     @Transactional
-    public void removeCollection(Long userId, Long articleId) {
+    public void removeCollection(String userId, Long articleId) {
         collectionRepository.deleteByUserIdAndArticleId(userId, articleId);
     }
 
-    public List<Collection> getUserCollections(Long userId) {
+    public List<Collection> getUserCollections(String userId) {
         return collectionRepository.findByUserId(userId);
     }
 
-    public boolean isCollected(Long userId, Long articleId) {
+    public boolean isCollected(String userId, Long articleId) {
         return collectionRepository.existsByUserIdAndArticleId(userId, articleId);
     }
 
-    public Optional<Collection> findByUserIdAndArticleId(Long userId, Long articleId) {
+    public Optional<Collection> findByUserIdAndArticleId(String userId, Long articleId) {
         return collectionRepository.findByUserIdAndArticleId(userId, articleId);
     }
 }

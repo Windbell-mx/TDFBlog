@@ -21,7 +21,7 @@ public class NoteService {
         return noteRepository.findById(id);
     }
 
-    public List<Note> findByUserId(Long userId) {
+    public List<Note> findByUserId(String userId) {
         return noteRepository.findByUserId(userId);
     }
 
