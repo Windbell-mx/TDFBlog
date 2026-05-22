@@ -3,7 +3,7 @@ import '../styles/MainPage.css';
 import Home from './Home';
 import Profile from './Profile';
 import ArticleDetail from './ArticleDetail';
-import { userApi, articleApi, type Article } from '../services/api';
+import { userApi, type Article } from '../services/api';
 
 interface MainPageProps {
   onLogout: () => void;
