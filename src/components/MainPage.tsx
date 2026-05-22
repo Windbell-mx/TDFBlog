@@ -15,7 +15,7 @@ const MainPage = ({ onLogout, addToast }: MainPageProps) => {
   const [currentModule, setCurrentModule] = useState('home');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [viewedAuthor, setViewedAuthor] = useState<{ id: number; username: string } | null>(null);
-  const [latestArticles, setLatestArticles] = useState<Article[]>([]);
+  // 移除 latestArticles 状态，不再重复获取文章
 
   const handleLogout = () => {
     userApi.logout();
@@ -73,25 +73,6 @@ const MainPage = ({ onLogout, addToast }: MainPageProps) => {
     // 更新浏览器历史记录
     history.pushState({ module }, '', `/#${module}`);
   };
-
-  // 获取最新文章
-  useEffect(() => {
-    const fetchLatestArticles = async () => {
-      try {
-        const articles = await articleApi.getAllArticles();
-        // 按创建时间排序，取最新的文章
-        const sortedArticles = articles.sort((a, b) => {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        });
-        setLatestArticles(sortedArticles.slice(0, 2)); // 只显示最新的2篇文章
-      } catch (error) {
-        console.error('获取最新文章失败:', error);
-        addToast('获取最新文章失败', 'error');
-      }
-    };
-
-    fetchLatestArticles();
-  }, [addToast]);
 
   return (
     <div className="main-page-container">
@@ -166,44 +147,15 @@ const MainPage = ({ onLogout, addToast }: MainPageProps) => {
             <section className="latest-articles">
               <h3>最新文章</h3>
               <div className="articles-preview">
-                {latestArticles.length > 0 ? (
-                  latestArticles.map(article => (
-                    <div key={article.id} className="article-preview" onClick={() => handleArticleClick(article)}>
-                      <h4>{article.title}</h4>
-                      <p>{article.content.replace(/<[^>]*>/g, '').substring(0, 100)}...</p>
-                      <div className="article-meta">
-                        <span className="article-author">
-                          <img 
-                            src={article.user.avatar || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20avatar%20portrait&image_size=square'} 
-                            alt={article.user.nickname || article.user.username} 
-                            className="author-avatar-small"
-                          />
-                          {article.user.nickname || article.user.username}
-                        </span>
-                        <span className="article-date">{new Date(article.createdAt).toLocaleDateString('zh-CN')}</span>
-                      </div>
-                      <button
-                        className="read-more-button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleArticleClick(article);
-                        }}
-                      >
-                        阅读更多
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  <div className="empty-state">
-                    <p>暂无文章</p>
-                    <button
-                      className="read-more-button"
-                      onClick={() => handleNavClick('community')}
-                    >
-                      浏览社区
-                    </button>
-                  </div>
-                )}
+                <div className="empty-state">
+                  <p>去社区浏览更多文章</p>
+                  <button
+                    className="read-more-button"
+                    onClick={() => handleNavClick('community')}
+                  >
+                    浏览社区
+                  </button>
+                </div>
               </div>
             </section>
           </div>

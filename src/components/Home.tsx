@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import '../styles/Home.css';
 import ArticleCard from './ArticleCard';
 import CreateArticle from './CreateArticle';
@@ -24,8 +24,13 @@ const Home = ({ onArticleClick, onAuthorClick, addToast }: HomeProps) => {
   const [popularAuthors, setPopularAuthors] = useState<Author[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const hasFetched = useRef(false); // 使用 ref 来标记是否已经获取过数据
 
   useEffect(() => {
+    // 如果已经获取过数据，就不再重复获取
+    if (hasFetched.current) return;
+    hasFetched.current = true; // 标记已开始获取
+
     const fetchArticles = async () => {
       setIsLoading(true);
       try {
@@ -51,7 +56,7 @@ const Home = ({ onArticleClick, onAuthorClick, addToast }: HomeProps) => {
 
     fetchArticles();
     fetchAuthors();
-  }, [addToast]);
+  }, [addToast]); // 依赖 addToast，但通过 hasFetched ref 防止重复
 
   const filteredArticles = articles.filter(article => {
     const searchLower = searchTerm.toLowerCase();

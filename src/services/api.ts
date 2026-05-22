@@ -266,42 +266,81 @@ export const userApi = {
 };
 
 // 文章相关API
-export const articleApi = {
-  createArticle: (article: { title: string; content: string; coverImage?: string; userId: number; category?: string }) =>
-    request<Article>('/articles', {
-      method: 'POST',
-      body: JSON.stringify(article),
-    }),
+export const articleApi = (() => {
+  let articlesCache: Article[] | null = null;
+  let authorsCache: any[] | null = null;
 
-  getAllArticles: () => request<Article[]>('/articles'),
+  return {
+    createArticle: (article: { title: string; content: string; coverImage?: string; userId: number; category?: string }) => {
+      // 创建新文章时清除缓存
+      articlesCache = null;
+      authorsCache = null;
+      return request<Article>('/articles', {
+        method: 'POST',
+        body: JSON.stringify(article),
+      });
+    },
 
-  getArticleById: (id: number) => request<Article>(`/articles/${id}`),
+    getAllArticles: async () => {
+      // 第一次调用后缓存结果
+      if (articlesCache) {
+        return articlesCache;
+      }
+      const result = await request<Article[]>('/articles');
+      articlesCache = result;
+      return result;
+    },
 
-  getArticlesByUserId: (userId: number) => request<Article[]>(`/articles/user/${userId}`),
+    getArticleById: (id: number) => request<Article>(`/articles/${id}`),
 
-  updateArticle: (id: number, article: { title: string; content: string; category?: string }) =>
-    request<Article>(`/articles/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(article),
-    }),
+    getArticlesByUserId: (userId: number) => request<Article[]>(`/articles/user/${userId}`),
 
-  deleteArticle: (id: number) =>
-    request<void>(`/articles/${id}`, {
-      method: 'DELETE',
-    }),
+    updateArticle: (id: number, article: { title: string; content: string; category?: string }) => {
+      // 更新文章时清除缓存
+      articlesCache = null;
+      authorsCache = null;
+      return request<Article>(`/articles/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(article),
+      });
+    },
 
-  uploadCoverImage: (id: number, file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
+    deleteArticle: (id: number) => {
+      // 删除文章时清除缓存
+      articlesCache = null;
+      authorsCache = null;
+      return request<void>(`/articles/${id}`, {
+        method: 'DELETE',
+      });
+    },
 
-    return fetch(`${API_BASE_URL}/articles/${id}/cover`, {
-      method: 'POST',
-      body: formData,
-    });
-  },
+    uploadCoverImage: (id: number, file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
 
-  getPopularAuthors: () => request<Array<{ id: number; nickname: string; avatar?: string; articleCount: number }>>('/articles/popular-authors'),
-};
+      return fetch(`${API_BASE_URL}/articles/${id}/cover`, {
+        method: 'POST',
+        body: formData,
+      });
+    },
+
+    getPopularAuthors: async () => {
+      // 第一次调用后缓存结果
+      if (authorsCache) {
+        return authorsCache;
+      }
+      const result = await request<Array<{ id: number; nickname: string; avatar?: string; articleCount: number }>>('/articles/popular-authors');
+      authorsCache = result;
+      return result;
+    },
+
+    // 清除所有文章缓存的方法
+    clearCache: () => {
+      articlesCache = null;
+      authorsCache = null;
+    },
+  };
+})();
 
 // 笔记相关API
 export const noteApi = {
