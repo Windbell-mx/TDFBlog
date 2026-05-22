@@ -79,8 +79,6 @@ blog/
 │   │   └── application.yml     # 应用配置
 │   ├── database/
 │   │   └── schema.sql          # 数据库初始化脚本
-│   ├── migrate_user_id.sql     # 用户ID迁移脚本
-│   ├── MIGRATION_GUIDE.md      # 迁移指南
 │   ├── .env.example            # 环境变量配置模板
 │   └── pom.xml                 # Maven 配置
 ├── src/                        # React 前端
@@ -189,8 +187,6 @@ mvn clean package -DskipTests
 
 ## 数据库初始化
 
-### 首次部署
-
 首次部署时，需要执行数据库初始化脚本：
 
 ```bash
@@ -203,19 +199,6 @@ USE tech_forum;
 # 执行初始化脚本
 SOURCE backend/database/schema.sql;
 ```
-
-### 数据库迁移（重要）
-
-如果是从旧版本（用户ID为Long类型）升级，需要执行迁移脚本：
-
-```bash
-# 1. 先备份数据库！
-
-# 2. 执行迁移脚本
-mysql -u root -p tech_forum < backend/migrate_user_id.sql
-```
-
-详细说明请参考 [MIGRATION_GUIDE.md](backend/MIGRATION_GUIDE.md)
 
 ## API 接口
 
@@ -299,10 +282,6 @@ mysql -u root -p tech_forum < backend/migrate_user_id.sql
 ### 头像上传失败
 - 这是因为 Minio 服务未启动，头像上传功能不可用
 - Minio 是可选功能，不影响其他功能使用
-
-### 登录后提示用户不存在
-- 如果是从旧版本升级，需要执行 `migrate_user_id.sql` 迁移脚本
-- 迁移后用户需要重新登录（JWT token格式已改变）
 
 ## 架构说明
 
