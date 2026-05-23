@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import '../styles/Home.css';
 import ArticleCard from './ArticleCard';
 import CreateArticle from './CreateArticle';
-import { articleApi, getCurrentUserId, type Article as ApiArticle } from '../services/api';
+import { articleApi, statisticsApi, getCurrentUserId, type Article as ApiArticle } from '../services/api';
 
 interface Author {
   id: number;
@@ -24,6 +24,7 @@ const Home = ({ onArticleClick, onAuthorClick, addToast }: HomeProps) => {
   const [popularAuthors, setPopularAuthors] = useState<Author[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [statistics, setStatistics] = useState<{ articleCount: number; userCount: number; todayUpdates: number } | null>(null);
   const hasFetched = useRef(false); // 使用 ref 来标记是否已经获取过数据
 
   useEffect(() => {
@@ -54,8 +55,18 @@ const Home = ({ onArticleClick, onAuthorClick, addToast }: HomeProps) => {
       }
     };
 
+    const fetchStatistics = async () => {
+      try {
+        const statsData = await statisticsApi.getStatistics();
+        setStatistics(statsData);
+      } catch (error) {
+        console.error('获取统计数据失败:', error);
+      }
+    };
+
     fetchArticles();
     fetchAuthors();
+    fetchStatistics();
   }, [addToast]); // 依赖 addToast，但通过 hasFetched ref 防止重复
 
   const filteredArticles = articles.filter(article => {
@@ -114,9 +125,9 @@ const Home = ({ onArticleClick, onAuthorClick, addToast }: HomeProps) => {
   ];
 
   const stats = [
-    { label: '文章总数', value: articles.length, icon: '📝' },
-    { label: '活跃用户', value: Math.max(articles.length * 3, 128), icon: '👥' },
-    { label: '今日更新', value: Math.floor(Math.random() * 20) + 1, icon: '✨' },
+    { label: '文章总数', value: statistics?.articleCount ?? articles.length, icon: '📝' },
+    { label: '活跃用户', value: statistics?.userCount ?? Math.max(articles.length * 3, 128), icon: '👥' },
+    { label: '今日更新', value: statistics?.todayUpdates ?? Math.floor(Math.random() * 20) + 1, icon: '✨' },
   ];
 
   return (

@@ -36,7 +36,6 @@ public class UserService {
     private MinioUtil minioUtil;
     
     private static final String USER_CACHE_KEY = "user:";
-    private static final String ARTICLE_CACHE_KEY = "article:";
     private static final String ARTICLES_LIST_KEY = "articles:list";
     private static final long CACHE_EXPIRY = 3600;
 

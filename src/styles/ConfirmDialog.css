@@ -122,3 +122,73 @@
     padding: 0 20px 20px;
   }
 }
+
+/* 暗色模式样式 */
+[data-theme="dark"] .confirm-dialog-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .confirm-dialog {
+  background: #2d2d2d;
+  border-color: #404040;
+}
+
+[data-theme="dark"] .confirm-dialog-title {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .confirm-dialog-message {
+  color: #b0b0b0;
+}
+
+[data-theme="dark"] .confirm-dialog-cancel {
+  background: #3d3d3d;
+  color: #ffffff;
+  border-color: #404040;
+}
+
+[data-theme="dark"] .confirm-dialog-cancel:hover {
+  background: #4d4d4d;
+}
+
+[data-theme="dark"] .confirm-dialog-confirm {
+  background: #667eea;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .confirm-dialog-confirm:hover {
+  background: #5a6fd6;
+}
+
+[data-theme="dark"] .confirm-dialog-header {
+  border-bottom-color: #404040;
+}
+
+[data-theme="dark"] .confirm-dialog-header h3 {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .confirm-dialog-body p {
+  color: #b0b0b0;
+}
+
+[data-theme="dark"] .confirm-dialog-button.cancel {
+  background-color: #3d3d3d;
+  color: #ffffff;
+  border-color: #505050;
+}
+
+[data-theme="dark"] .confirm-dialog-button.cancel:hover {
+  background-color: #4d4d4d;
+  border-color: #667eea;
+}
+
+[data-theme="dark"] .confirm-dialog-button.confirm {
+  background-color: #ef4444;
+  border-color: #ef4444;
+}
+
+[data-theme="dark"] .confirm-dialog-button.confirm:hover {
+  background-color: #dc2626;
+  border-color: #dc2626;
+}

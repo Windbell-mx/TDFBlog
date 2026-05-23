@@ -21,3 +21,13 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+/* 暗色模式样式 */
+[data-theme="dark"] body {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: #ffffff;
+}
+
+[data-theme="dark"] #root {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+}

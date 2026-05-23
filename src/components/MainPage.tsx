@@ -4,6 +4,7 @@ import Home from './Home';
 import Profile from './Profile';
 import ArticleDetail from './ArticleDetail';
 import { userApi, type Article } from '../services/api';
+import ThemeToggle from './ThemeToggle';
 
 interface MainPageProps {
   onLogout: () => void;
@@ -101,6 +102,7 @@ const MainPage = ({ onLogout, addToast }: MainPageProps) => {
           </button>
         </nav>
         <div className="header-right">
+          <ThemeToggle />
           <button className="logout-button" onClick={handleLogout}>
             退出登录
           </button>

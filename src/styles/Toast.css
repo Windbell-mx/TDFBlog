@@ -101,3 +101,47 @@
     max-width: none;
   }
 }
+
+/* 暗色模式样式 */
+[data-theme="dark"] .toast-container {
+  background: #2d2d2d;
+  border-color: #404040;
+}
+
+[data-theme="dark"] .toast-message {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .toast-close {
+  color: #b0b0b0;
+}
+
+[data-theme="dark"] .toast-close:hover {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .toast-success {
+  background-color: #1a3a1a;
+  color: #6bff6b;
+  border-left-color: #22c55e;
+}
+
+[data-theme="dark"] .toast-error {
+  background-color: #3d1a1a;
+  color: #ff6b6b;
+  border-left-color: #ef4444;
+}
+
+[data-theme="dark"] .toast-info {
+  background-color: #1a2a3a;
+  color: #b0d4ff;
+  border-left-color: #667eea;
+}
+
+[data-theme="dark"] .toast-close {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .toast-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

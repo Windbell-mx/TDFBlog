@@ -9,7 +9,7 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   min-height: 100vh;
   color: #333;
 }
@@ -19,7 +19,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   padding: 2rem;
 }
 
@@ -61,11 +61,10 @@ body {
 
 /* 个人中心卡片 */
 .profile-section {
-  background: rgba(255, 255, 255, 0.15);
+  background: #ffffff;
   border-radius: 24px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
   padding: 2.5rem;
   transition: all 0.3s ease;
   position: relative;
@@ -79,14 +78,14 @@ body {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.05), transparent);
   transform: rotate(45deg);
   animation: shimmer 6s linear infinite;
 }
 
 .profile-section:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
 /* 卡片头部 */
@@ -106,7 +105,7 @@ body {
 .section-header h3 {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #333;
 }
 
 /* 文章列表 */
@@ -124,17 +123,17 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: #f8f9fa;
   border-radius: 16px;
   transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #e0e0e0;
   margin-bottom: 1rem;
 }
 
 .article-item:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: #ffffff;
   transform: translateX(8px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .article-info {
@@ -145,7 +144,7 @@ body {
 .article-info h4 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #333;
   margin-bottom: 0.75rem;
   line-height: 1.4;
 }
@@ -154,7 +153,7 @@ body {
   display: flex;
   gap: 1.5rem;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: #666;
   align-items: center;
 }
 
@@ -179,17 +178,17 @@ body {
   justify-content: space-between;
   align-items: flex-start;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: #f8f9fa;
   border-radius: 16px;
   transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #e0e0e0;
   margin-bottom: 1rem;
 }
 
 .note-item:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: #ffffff;
   transform: translateX(8px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .note-info {
@@ -200,7 +199,7 @@ body {
 .note-info h4 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #333;
   margin-bottom: 0.75rem;
   line-height: 1.4;
 }
@@ -210,16 +209,17 @@ body {
   flex-wrap: wrap;
   gap: 0.75rem;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: #666;
   align-items: center;
 }
 
 .note-tag {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(102, 126, 234, 0.1);
   padding: 0.3rem 0.7rem;
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 500;
+  color: #667eea;
 }
 
 .note-actions {
@@ -244,17 +244,17 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: #f8f9fa;
   border-radius: 16px;
   transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #e0e0e0;
   margin-bottom: 1rem;
 }
 
 .collection-item:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: #ffffff;
   transform: translateX(8px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .collection-info {
@@ -265,7 +265,7 @@ body {
 .collection-info h4 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #333;
   margin-bottom: 0.75rem;
   line-height: 1.4;
 }
@@ -275,7 +275,7 @@ body {
   flex-wrap: wrap;
   gap: 0.75rem;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: #666;
   align-items: center;
 }
 
@@ -339,11 +339,10 @@ body {
 
 /* 个人信息卡片 */
 .profile-info-card {
-  background: rgba(255, 255, 255, 0.15);
+  background: #ffffff;
   border-radius: 24px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
   padding: 2.5rem;
   transition: all 0.3s ease;
   position: relative;
@@ -362,14 +361,14 @@ body {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.05), transparent);
   transform: rotate(45deg);
   animation: shimmer 6s linear infinite;
 }
 
 .profile-info-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
 /* 个人头像 */
@@ -386,15 +385,15 @@ body {
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid rgba(255, 255, 255, 0.3);
+  border: 4px solid #e0e0e0;
   transition: all 0.3s ease;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .profile-avatar:hover img {
   transform: scale(1.08);
-  border-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+  border-color: #667eea;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
 
 .avatar-decoration {
@@ -412,15 +411,15 @@ body {
   cursor: pointer;
   font-size: 1.1rem;
   font-weight: 700;
-  border: 3px solid rgba(255, 255, 255, 0.4);
+  border: 3px solid #ffffff;
   transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .avatar-decoration:hover {
   background: rgba(102, 126, 234, 1);
   transform: scale(1.15);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* 个人信息详情 */
@@ -434,7 +433,7 @@ body {
 .profile-nickname {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #333;
   margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
@@ -444,24 +443,25 @@ body {
 }
 
 .gender-badge {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(102, 126, 234, 0.1);
   padding: 0.3rem 0.8rem;
   border-radius: 16px;
   font-size: 0.9rem;
   font-weight: 600;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  color: #667eea;
 }
 
 .profile-register-date {
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: #666;
   margin-bottom: 0.75rem;
   font-weight: 500;
 }
 
 .profile-email {
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: #666;
   margin-bottom: 1.5rem;
   word-break: break-all;
   font-weight: 500;
@@ -469,7 +469,7 @@ body {
 
 .profile-bio {
   font-size: 1.05rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: #666;
   margin-bottom: 2rem;
   line-height: 1.6;
   padding: 0 1rem;
@@ -482,10 +482,10 @@ body {
   justify-content: space-around;
   margin-bottom: 2.5rem;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: #f8f9fa;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid #e0e0e0;
+  box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 .stat-item {
@@ -496,7 +496,7 @@ body {
 }
 
 .stat-item:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(102, 126, 234, 0.05);
   transform: translateY(-3px);
 }
 
@@ -504,7 +504,7 @@ body {
   display: block;
   font-size: 1.8rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #667eea;
   margin-bottom: 0.3rem;
   font-family: 'Courier New', monospace;
 }
@@ -512,7 +512,7 @@ body {
 .stat-label {
   display: block;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: #666;
   font-weight: 500;
 }
 
@@ -520,8 +520,8 @@ body {
 .edit-profile-button {
   width: 100%;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.95);
-  color: #667eea;
+  background: #667eea;
+  color: #ffffff;
   border: none;
   border-radius: 16px;
   font-size: 1.1rem;
@@ -529,16 +529,16 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   margin-bottom: 1.5rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .edit-profile-button:hover {
   transform: translateY(-4px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-  background: #ffffff;
-  color: #764ba2;
+  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+  background: #764ba2;
+  color: #ffffff;
 }
 
 /* 注销账号按钮 */
@@ -553,14 +553,14 @@ body {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px rgba(255, 100, 100, 0.3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .delete-account-button:hover {
   transform: translateY(-4px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 15px 35px rgba(255, 100, 100, 0.4);
   background: rgba(255, 100, 100, 1);
 }
 
@@ -583,7 +583,7 @@ body {
   height: 100%;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid rgba(255, 255, 255, 0.3);
+  border: 3px solid #e0e0e0;
 }
 
 .avatar-wrapper img {
@@ -629,28 +629,28 @@ body {
 .form-label {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #333;
 }
 
 .form-input {
   padding: 0.8rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid #e0e0e0;
   border-radius: 10px;
   font-size: 1rem;
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  background: #ffffff;
+  color: #333;
   transition: all 0.3s ease;
 }
 
 .form-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: #999;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.25);
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: #ffffff;
 }
 
 .form-input.error {
@@ -659,25 +659,25 @@ body {
 
 .form-textarea {
   padding: 0.8rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid #e0e0e0;
   border-radius: 10px;
   font-size: 1rem;
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  background: #ffffff;
+  color: #333;
   resize: vertical;
   transition: all 0.3s ease;
   min-height: 100px;
 }
 
 .form-textarea::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: #999;
 }
 
 .form-textarea:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.25);
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: #ffffff;
 }
 
 .form-textarea.error {
@@ -686,7 +686,7 @@ body {
 
 .char-count {
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: #666;
   text-align: right;
   margin-top: 0.25rem;
 }
@@ -700,10 +700,10 @@ body {
 .gender-option {
   flex: 1;
   padding: 0.8rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid #e0e0e0;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  background: #ffffff;
+  color: #333;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -713,13 +713,14 @@ body {
 }
 
 .gender-option:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(102, 126, 234, 0.05);
   transform: translateY(-2px);
 }
 
 .gender-option.active {
-  background: rgba(102, 126, 234, 0.8);
-  border-color: rgba(102, 126, 234, 1);
+  background: rgba(102, 126, 234, 0.1);
+  border-color: #667eea;
+  color: #667eea;
 }
 
 .gender-icon {
@@ -736,7 +737,7 @@ body {
 .save-button {
   flex: 1;
   padding: 0.8rem;
-  background: rgba(100, 200, 100, 0.9);
+  background: #667eea;
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -748,16 +749,16 @@ body {
 
 .save-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-  background: rgba(100, 200, 100, 1);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+  background: #764ba2;
 }
 
 .cancel-button {
   flex: 1;
   padding: 0.8rem;
-  background: rgba(255, 255, 255, 0.9);
-  color: #667eea;
-  border: none;
+  background: #f8f9fa;
+  color: #666;
+  border: 1px solid #e0e0e0;
   border-radius: 10px;
   font-size: 1rem;
   font-weight: 700;
@@ -767,7 +768,7 @@ body {
 
 .cancel-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   background: #ffffff;
 }
 
@@ -864,7 +865,7 @@ body {
 .profile-footer {
   text-align: center;
   padding: 2rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: #666;
   font-size: 0.9rem;
   animation: fadeIn 0.8s ease-in-out 0.3s forwards;
   opacity: 0;
@@ -981,6 +982,43 @@ body {
   }
 }
 
+/* 暗色模式样式 */
+[data-theme="dark"] .profile-page {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .profile-container,
+[data-theme="dark"] .edit-section,
+[data-theme="dark"] .my-articles-section,
+[data-theme="dark"] .my-notes-section,
+[data-theme="dark"] .my-collections-section {
+  background: #2d2d2d;
+  border-color: #404040;
+}
+
+[data-theme="dark"] .section-title,
+[data-theme="dark"] h2 {
+  color: #ffffff;
+}
+
+[data-theme="dark"] p,
+[data-theme="dark"] .stat-label {
+  color: #b0b0b0;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] textarea {
+  background: #3d3d3d;
+  border-color: #505050;
+  color: #ffffff;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #808080;
+}
+
 /* 加载状态 */
 .profile-loading {
   display: flex;
@@ -997,8 +1035,8 @@ body {
 .loading-spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid #ffffff;
+  border: 4px solid #e0e0e0;
+  border-top: 4px solid #667eea;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 15px;
@@ -1010,8 +1048,147 @@ body {
 }
 
 .loading-state p {
-  color: rgba(255, 255, 255, 0.8);
+  color: #666;
   font-size: 1rem;
   margin: 0;
   font-weight: 500;
+}
+
+/* 完整的暗色模式样式 */
+[data-theme="dark"] body {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .profile-container {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
+[data-theme="dark"] .profile-section,
+[data-theme="dark"] .profile-info-card {
+  background: #2d2d2d;
+  border-color: #404040;
+}
+
+[data-theme="dark"] .section-header h3,
+[data-theme="dark"] .article-info h4,
+[data-theme="dark"] .note-info h4,
+[data-theme="dark"] .collection-info h4 {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .article-meta,
+[data-theme="dark"] .note-meta,
+[data-theme="dark"] .collection-meta {
+  color: #b0b0b0;
+}
+
+[data-theme="dark"] .article-item,
+[data-theme="dark"] .note-item,
+[data-theme="dark"] .collection-item {
+  background: #3d3d3d;
+  border-color: #404040;
+}
+
+[data-theme="dark"] .article-item:hover,
+[data-theme="dark"] .note-item:hover,
+[data-theme="dark"] .collection-item:hover {
+  background: #4d4d4d;
+}
+
+[data-theme="dark"] .profile-avatar img {
+  border-color: #404040;
+}
+
+[data-theme="dark"] .profile-nickname,
+[data-theme="dark"] .profile-register-date,
+[data-theme="dark"] .profile-email,
+[data-theme="dark"] .profile-bio {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .profile-stats {
+  background: #3d3d3d;
+  border-color: #404040;
+}
+
+[data-theme="dark"] .stat-label {
+  color: #b0b0b0;
+}
+
+[data-theme="dark"] .form-label {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .form-textarea {
+  background: #3d3d3d;
+  border-color: #505050;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .form-input::placeholder,
+[data-theme="dark"] .form-textarea::placeholder {
+  color: #808080;
+}
+
+[data-theme="dark"] .form-input:focus,
+[data-theme="dark"] .form-textarea:focus {
+  border-color: #667eea;
+}
+
+[data-theme="dark"] .gender-option {
+  background: #3d3d3d;
+  border-color: #505050;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .gender-option.active {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+  color: #667eea;
+}
+
+[data-theme="dark"] .cancel-button {
+  background: #3d3d3d;
+  border-color: #505050;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .cancel-button:hover {
+  background: #4d4d4d;
+}
+
+[data-theme="dark"] .modal-overlay {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+[data-theme="dark"] .modal-content {
+  background: rgba(45, 45, 45, 0.95);
+}
+
+[data-theme="dark"] .delete-account-modal h3 {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .modal-description {
+  color: #b0b0b0;
+}
+
+[data-theme="dark"] .modal-actions .cancel-button {
+  background: rgba(100, 100, 100, 0.9);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .profile-footer {
+  color: #b0b0b0;
+}
+
+[data-theme="dark"] .loading-state p {
+  color: #b0b0b0;
+}
+
+[data-theme="dark"] .note-tag {
+  background: rgba(102, 126, 234, 0.2);
+  color: #667eea;
 }

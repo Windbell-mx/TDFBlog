@@ -366,6 +366,11 @@ export const noteApi = {
     }),
 };
 
+// 统计相关API
+export const statisticsApi = {
+  getStatistics: () => request<{ articleCount: number; userCount: number; todayUpdates: number }>('/statistics'),
+};
+
 // 收藏相关API
 export const collectionApi = {
   addCollection: (userId: number, articleId: number) =>

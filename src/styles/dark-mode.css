@@ -1,0 +1,296 @@
+/* 暗色模式变量定义 */
+
+[data-theme="dark"] {
+  /* 背景色 */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #3d3d3d;
+  
+  /* 文字颜色 */
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-muted: #808080;
+  
+  /* 边框颜色 */
+  --border-color: #404040;
+  --border-light: #505050;
+  
+  /* 强调色 */
+  --accent-color: #667eea;
+  --accent-hover: #5a6fd6;
+  
+  /* 阴影 */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+  
+  /* 卡片背景 */
+  --card-bg: #2d2d2d;
+  
+  /* 输入框背景 */
+  --input-bg: #3d3d3d;
+  --input-border: #505050;
+  
+  /* 半透明背景（用于毛玻璃效果） */
+  --glass-bg: rgba(45, 45, 45, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+/* 暗色模式下的全局样式 */
+[data-theme="dark"] body {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .main-header,
+[data-theme="dark"] .home-header,
+[data-theme="dark"] .home-nav,
+[data-theme="dark"] .articles-section,
+[data-theme="dark"] .sidebar-card,
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .article-preview,
+[data-theme="dark"] .article-card,
+[data-theme="dark"] .article-detail-container,
+[data-theme="dark"] .login-card,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .author-item,
+[data-theme="dark"] .activity-item,
+[data-theme="dark"] .footer-content {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] .header-content h1,
+[data-theme="dark"] .section-header h2,
+[data-theme="dark"] .article-title,
+[data-theme="dark"] .article-detail-title,
+[data-theme="dark"] .feature-card h4,
+[data-theme="dark"] .sidebar-card h3 {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] p,
+[data-theme="dark"] .header-content p,
+[data-theme="dark"] .article-content,
+[data-theme="dark"] .article-detail-content,
+[data-theme="dark"] .feature-card p,
+[data-theme="dark"] .article-meta,
+[data-theme="dark"] .article-date,
+[data-theme="dark"] .article-reads,
+[data-theme="dark"] .author-articles,
+[data-theme="dark"] .activity-date,
+[data-theme="dark"] .footer-content p {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .nav-module,
+[data-theme="dark"] .logout-button,
+[data-theme="dark"] .category-tab {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .nav-module:hover,
+[data-theme="dark"] .logout-button:hover,
+[data-theme="dark"] .category-tab:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+[data-theme="dark"] .nav-module.active {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: white;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] .search-input {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] .search-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+[data-theme="dark"] .article-category {
+  background: rgba(102, 126, 234, 0.2);
+  color: var(--accent-color);
+}
+
+[data-theme="dark"] .article-meta,
+[data-theme="dark"] .section-header,
+[data-theme="dark"] .article-footer,
+[data-theme="dark"] .article-detail-header,
+[data-theme="dark"] .sidebar-card h3 {
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .author-avatar,
+[data-theme="dark"] .author-avatar-small {
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .article-detail-content code {
+  background: var(--bg-tertiary);
+  color: var(--accent-color);
+}
+
+[data-theme="dark"] .article-detail-content pre {
+  background: var(--bg-tertiary);
+}
+
+[data-theme="dark"] .loading-spinner {
+  border-color: var(--border-color);
+  border-top-color: var(--accent-color);
+}
+
+/* 暗色模式下的按钮样式 */
+[data-theme="dark"] .create-btn,
+[data-theme="dark"] .search-btn,
+[data-theme="dark"] .create-first-btn,
+[data-theme="dark"] .read-more-button {
+  background: var(--accent-color);
+  color: white;
+}
+
+[data-theme="dark"] .create-btn:hover,
+[data-theme="dark"] .search-btn:hover,
+[data-theme="dark"] .create-first-btn:hover,
+[data-theme="dark"] .read-more-button:hover {
+  background: var(--accent-hover);
+}
+
+[data-theme="dark"] .back-button {
+  background: rgba(102, 126, 234, 0.2);
+  color: var(--accent-color);
+}
+
+[data-theme="dark"] .back-button:hover {
+  background: rgba(102, 126, 234, 0.3);
+}
+
+/* 暗色模式下的收藏按钮 */
+[data-theme="dark"] .fancy-collect-btn {
+  background: rgba(102, 126, 234, 0.1);
+  border-color: rgba(102, 126, 234, 0.3);
+  color: var(--accent-color);
+}
+
+[data-theme="dark"] .fancy-collect-btn:hover {
+  background: rgba(102, 126, 234, 0.2);
+}
+
+[data-theme="dark"] .fancy-collect-btn.collected {
+  background: rgba(255, 87, 34, 0.2);
+  color: #ff7043;
+  border-color: rgba(255, 87, 34, 0.3);
+}
+
+/* 暗色模式下的标签 */
+[data-theme="dark"] .tag {
+  background: rgba(102, 126, 234, 0.1);
+  color: var(--accent-color);
+}
+
+[data-theme="dark"] .tag:hover {
+  background: rgba(102, 126, 234, 0.2);
+}
+
+/* 暗色模式下的链接 */
+[data-theme="dark"] .footer-links a,
+[data-theme="dark"] .forgot-password {
+  color: var(--accent-color);
+}
+
+[data-theme="dark"] .footer-links a:hover,
+[data-theme="dark"] .forgot-password:hover {
+  color: var(--accent-hover);
+}
+
+/* 暗色模式下的hover效果 */
+[data-theme="dark"] .article-card:hover,
+[data-theme="dark"] .feature-card:hover,
+[data-theme="dark"] .article-preview:hover,
+[data-theme="dark"] .sidebar-card:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-color);
+}
+
+[data-theme="dark"] .author-item:hover,
+[data-theme="dark"] .activity-item:hover {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+/* 暗色模式下的头像区域hover */
+[data-theme="dark"] .author-item:hover {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+/* 暗色模式下的主题切换按钮 */
+[data-theme="dark"] .theme-toggle {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+  border-color: var(--accent-color);
+  box-shadow: var(--shadow-md);
+}
+
+/* 暗色模式下的Toast */
+[data-theme="dark"] .toast-container {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+/* 暗色模式下的确认对话框 */
+[data-theme="dark"] .confirm-dialog {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+/* 暗色模式下的表单选项 */
+[data-theme="dark"] .remember-me {
+  color: var(--text-secondary);
+}
+
+/* 暗色模式下的统计卡片数值 */
+[data-theme="dark"] .stat-value {
+  color: var(--accent-color);
+}
+
+[data-theme="dark"] .stat-label {
+  color: var(--text-secondary);
+}
+
+/* 暗色模式下的英雄区域 */
+[data-theme="dark"] .hero-section {
+  background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+  color: var(--text-primary);
+}
+
+/* 暗色模式下的标题颜色 */
+[data-theme="dark"] .header-left h1 {
+  color: var(--accent-color);
+}
+
+[data-theme="dark"] .features-section h3,
+[data-theme="dark"] .latest-articles h3 {
+  color: var(--text-primary);
+}

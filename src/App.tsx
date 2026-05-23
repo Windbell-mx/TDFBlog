@@ -5,6 +5,7 @@ import MainPage from './components/MainPage';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import ToastManager from './components/ToastManager';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { isAuthenticated, clearToken } from './services/api';
 
 interface Toast {
@@ -41,25 +42,27 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <div className="app">
-        <ToastManager toasts={toasts} onClose={removeToast} />
-        <Routes>
-          <Route path="/login" element={
-            !isLoggedIn ? <Login onLogin={handleLogin} addToast={addToast} /> : <Navigate to="/" />
-          } />
-          <Route path="/forgot-password" element={
-            !isLoggedIn ? <ForgotPassword onBack={() => window.history.back()} addToast={addToast} /> : <Navigate to="/" />
-          } />
-          <Route path="/reset-password" element={
-            !isLoggedIn ? <ResetPassword onBack={() => window.history.back()} addToast={addToast} /> : <Navigate to="/" />
-          } />
-          <Route path="/" element={
-            isLoggedIn ? <MainPage onLogout={handleLogout} addToast={addToast} /> : <Navigate to="/login" />
-          } />
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <div className="app">
+          <ToastManager toasts={toasts} onClose={removeToast} />
+          <Routes>
+            <Route path="/login" element={
+              !isLoggedIn ? <Login onLogin={handleLogin} addToast={addToast} /> : <Navigate to="/" />
+            } />
+            <Route path="/forgot-password" element={
+              !isLoggedIn ? <ForgotPassword onBack={() => window.history.back()} addToast={addToast} /> : <Navigate to="/" />
+            } />
+            <Route path="/reset-password" element={
+              !isLoggedIn ? <ResetPassword onBack={() => window.history.back()} addToast={addToast} /> : <Navigate to="/" />
+            } />
+            <Route path="/" element={
+              isLoggedIn ? <MainPage onLogout={handleLogout} addToast={addToast} /> : <Navigate to="/login" />
+            } />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

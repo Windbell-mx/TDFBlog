@@ -66,3 +66,20 @@
   75% { transform: scale(1.1); }
   100% { transform: scale(1); }
 }
+
+/* 暗色模式样式 */
+[data-theme="dark"] .app {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .fancy-collect-btn {
+  background: #2d2d2d;
+  border-color: #404040;
+  color: #b0b0b0;
+}
+
+[data-theme="dark"] .fancy-collect-btn:hover:not(:disabled) {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}

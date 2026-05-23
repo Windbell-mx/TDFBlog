@@ -1,0 +1,38 @@
+.theme-toggle {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  background: #ffffff;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.theme-toggle:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+[data-theme="dark"] .theme-toggle {
+  background: #2d2d2d;
+  border-color: #404040;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* 暗色模式下按钮的hover效果 */
+@media (prefers-color-scheme: dark) {
+  .theme-toggle:active {
+    background: #404040;
+  }
+}
