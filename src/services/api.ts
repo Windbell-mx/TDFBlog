@@ -267,13 +267,11 @@ export const userApi = {
 
 // 文章相关API
 export const articleApi = (() => {
-  let articlesCache: Article[] | null = null;
   let authorsCache: any[] | null = null;
 
   return {
     createArticle: (article: { title: string; content: string; coverImage?: string; userId: number; category?: string }) => {
       // 创建新文章时清除缓存
-      articlesCache = null;
       authorsCache = null;
       return request<Article>('/articles', {
         method: 'POST',
@@ -281,13 +279,9 @@ export const articleApi = (() => {
       });
     },
 
-    getAllArticles: async () => {
-      // 第一次调用后缓存结果
-      if (articlesCache) {
-        return articlesCache;
-      }
-      const result = await request<Article[]>('/articles');
-      articlesCache = result;
+    getAllArticles: async (sort: string = 'latest') => {
+      // 每次都从服务器获取最新数据，确保排序正确
+      const result = await request<Article[]>(`/articles?sort=${sort}`);
       return result;
     },
 
@@ -297,7 +291,6 @@ export const articleApi = (() => {
 
     updateArticle: (id: number, article: { title: string; content: string; category?: string }) => {
       // 更新文章时清除缓存
-      articlesCache = null;
       authorsCache = null;
       return request<Article>(`/articles/${id}`, {
         method: 'PUT',
@@ -307,7 +300,6 @@ export const articleApi = (() => {
 
     deleteArticle: (id: number) => {
       // 删除文章时清除缓存
-      articlesCache = null;
       authorsCache = null;
       return request<void>(`/articles/${id}`, {
         method: 'DELETE',
@@ -336,7 +328,6 @@ export const articleApi = (() => {
 
     // 清除所有文章缓存的方法
     clearCache: () => {
-      articlesCache = null;
       authorsCache = null;
     },
   };

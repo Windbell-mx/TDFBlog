@@ -24,6 +24,7 @@ const Home = ({ onArticleClick, onAuthorClick, addToast }: HomeProps) => {
   const [popularAuthors, setPopularAuthors] = useState<Author[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState<'latest' | 'hot'>('latest');
   const [statistics, setStatistics] = useState<{ articleCount: number; userCount: number; todayUpdates: number } | null>(null);
   const hasFetched = useRef(false); // 使用 ref 来标记是否已经获取过数据
 
@@ -32,10 +33,10 @@ const Home = ({ onArticleClick, onAuthorClick, addToast }: HomeProps) => {
     if (hasFetched.current) return;
     hasFetched.current = true; // 标记已开始获取
 
-    const fetchArticles = async () => {
+    const fetchArticles = async (sort: string = 'latest') => {
       setIsLoading(true);
       try {
-        const articlesData = await articleApi.getAllArticles();
+        const articlesData = await articleApi.getAllArticles(sort);
         setArticles(articlesData);
       } catch (error) {
         console.error('获取文章失败:', error);
@@ -64,10 +65,10 @@ const Home = ({ onArticleClick, onAuthorClick, addToast }: HomeProps) => {
       }
     };
 
-    fetchArticles();
+    fetchArticles(sortBy);
     fetchAuthors();
     fetchStatistics();
-  }, [addToast]); // 依赖 addToast，但通过 hasFetched ref 防止重复
+  }, [addToast, sortBy]); // 依赖 addToast 和 sortBy
 
   const filteredArticles = articles.filter(article => {
     const searchLower = searchTerm.toLowerCase();
@@ -188,7 +189,23 @@ const Home = ({ onArticleClick, onAuthorClick, addToast }: HomeProps) => {
             <section className="articles-section">
               <div className="section-header">
                 <h2>📖 精选文章</h2>
-                <span className="article-count">共 {filteredArticles.length} 篇文章</span>
+                <div className="section-actions">
+                  <div className="sort-buttons">
+                    <button
+                      className={`sort-btn ${sortBy === 'latest' ? 'active' : ''}`}
+                      onClick={() => setSortBy('latest')}
+                    >
+                      🕒 最新
+                    </button>
+                    <button
+                      className={`sort-btn ${sortBy === 'hot' ? 'active' : ''}`}
+                      onClick={() => setSortBy('hot')}
+                    >
+                      🔥 最热
+                    </button>
+                  </div>
+                  <span className="article-count">共 {filteredArticles.length} 篇文章</span>
+                </div>
               </div>
 
               {isLoading ? (

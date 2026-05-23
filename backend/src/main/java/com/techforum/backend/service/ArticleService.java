@@ -25,29 +25,27 @@ public class ArticleService {
 
     private static final String ARTICLE_CACHE_KEY = "article:";
     private static final String ARTICLES_LIST_KEY = "articles:list";
-    private static final long CACHE_EXPIRY = 3600; // 1小时缓存
+    private static final String POPULAR_AUTHORS_KEY = "authors:popular";
+    private static final long CACHE_EXPIRY = 3600;
 
-    public List<ArticleResponse> findAll() {
-        try {
-            @SuppressWarnings("unchecked")
-            List<ArticleResponse> articles = (List<ArticleResponse>) redisUtil.get(ARTICLES_LIST_KEY);
-            if (articles != null) {
-                return articles;
-            }
-        } catch (Exception e) {
-            System.err.println("Redis读取失败，从数据库获取: " + e.getMessage());
-        }
-
+    public List<ArticleResponse> findAll(String sort) {
         // 从数据库获取
         List<ArticleResponse> articles = articleRepository.findAll().stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
         
-        try {
-            // 缓存结果
-            redisUtil.set(ARTICLES_LIST_KEY, articles, CACHE_EXPIRY);
-        } catch (Exception e) {
-            System.err.println("Redis写入失败: " + e.getMessage());
+        // 根据排序参数排序
+        if ("hot".equals(sort)) {
+            // 按阅读量排序（最热）
+            articles.sort((a, b) -> Integer.compare(b.getReadCount(), a.getReadCount()));
+        } else {
+            // 默认按创建时间排序（最新）
+            articles.sort((a, b) -> {
+                if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
+                if (a.getCreatedAt() == null) return 1;
+                if (b.getCreatedAt() == null) return -1;
+                return b.getCreatedAt().compareTo(a.getCreatedAt());
+            });
         }
         
         return articles;
@@ -130,8 +128,6 @@ public class ArticleService {
         }
     }
 
-    private static final String POPULAR_AUTHORS_KEY = "authors:popular";
-    
     public List<Map<String, Object>> getPopularAuthors() {
         try {
             @SuppressWarnings("unchecked")

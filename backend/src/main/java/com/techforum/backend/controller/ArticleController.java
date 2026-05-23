@@ -19,8 +19,9 @@ public class ArticleController {
     private ArticleService articleService;
 
     @GetMapping
-    public ResponseEntity<List<ArticleResponse>> getAllArticles() {
-        List<ArticleResponse> articles = articleService.findAll();
+    public ResponseEntity<List<ArticleResponse>> getAllArticles(
+            @RequestParam(required = false, defaultValue = "latest") String sort) {
+        List<ArticleResponse> articles = articleService.findAll(sort);
         return ResponseEntity.ok(articles);
     }
 
