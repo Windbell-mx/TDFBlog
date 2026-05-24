@@ -2,7 +2,6 @@ package com.techforum.backend.controller;
 
 import com.techforum.backend.util.MinioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,9 +17,6 @@ public class MediaController {
 
     @Autowired
     private MinioUtil minioUtil;
-
-    @Value("${minio.publicUrl}")
-    private String publicUrl;
 
     @GetMapping("/avatar/{fileName}")
     public ResponseEntity<byte[]> getAvatar(@PathVariable String fileName) {

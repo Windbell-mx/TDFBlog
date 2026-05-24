@@ -249,7 +249,7 @@ SOURCE backend/database/schema.sql;
 - `POST /api/captcha/slider/validate` - 验证滑块位置
 
 ### 媒体接口
-- `GET /api/media/avatar/{fileName}` - 获取头像（通过后端代理访问MinIO）
+- `GET /api/media/avatar/{fileName}` - 获取头像（兼容旧格式，通过后端代理访问MinIO）
 
 ## 用户ID生成机制
 

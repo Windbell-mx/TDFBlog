@@ -83,7 +83,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, onClick, onAuthorCli
             onClick={(e) => {
               e.stopPropagation();
               if (onAuthorClick && article.user) {
-                onAuthorClick(article.user.id, article.user.nickname || article.user.username || '用户');
+                onAuthorClick(article.user.id, article.user.nickname || '用户');
               }
             }}
             style={{ cursor: 'pointer' }}
@@ -91,10 +91,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, onClick, onAuthorCli
           >
             <img 
               src={article.user.avatar || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20avatar%20portrait&image_size=square'} 
-              alt={article.user.nickname || article.user.username} 
+              alt={article.user.nickname} 
               className="author-avatar-small"
             />
-            {article.user.nickname || article.user.username}
+            {article.user.nickname}
           </span>
         )}
       </div>

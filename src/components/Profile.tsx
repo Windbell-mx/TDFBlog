@@ -86,7 +86,7 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack, addTo
   const [userInfo, setUserInfo] = useState<UserInfo>(() => {
     return {
       avatar: currentUser?.avatar || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20avatar%20portrait%20of%20a%20tech%20person&image_size=square',
-      nickname: currentUser?.username || '技术达人',
+      nickname: currentUser?.nickname || '技术达人',
       gender: 'male',
       registerDate: formatDate(currentUser?.createdAt),
       bio: '前端开发工程师，热爱技术分享和学习，专注于React、TypeScript等前端技术栈。',

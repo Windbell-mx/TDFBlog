@@ -55,8 +55,8 @@ server:
   port: 8080
 
 minio:
-  internalUrl: ${MINIO_INTERNAL_URL:http://127.0.0.1:9000}
-  publicUrl: ${MINIO_PUBLIC_URL:http://localhost:9000}
+  url: ${MINIO_URL:http://127.0.0.1:9000}
+  accessUrl: ${MINIO_ACCESS_URL:http://localhost:9000}
   accessKey: ${MINIO_ACCESS_KEY:minioadmin}
   secretKey: ${MINIO_SECRET_KEY:minioadmin}
   bucketName: ${MINIO_BUCKET_NAME:tdfblog}

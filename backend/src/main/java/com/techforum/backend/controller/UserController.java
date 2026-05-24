@@ -62,10 +62,9 @@ public class UserController {
     private UserResponse convertToUserResponse(User user) {
         UserResponse response = new UserResponse();
         response.setId(user.getId());
-        response.setUsername(user.getNickname());
         response.setNickname(user.getNickname());
         response.setEmail(user.getEmail());
-        response.setAvatar(user.getAvatar() != null ? "/api/media/avatar/" + user.getAvatar() : null);
+        response.setAvatar(user.getAvatar());
         response.setGender(user.getGender());
         response.setBio(user.getBio());
         response.setCreatedAt(user.getCreatedAt() != null ? user.getCreatedAt().format(FORMATTER) : null);
@@ -190,7 +189,7 @@ public class UserController {
                 }
 
                 Map<String, String> response = new HashMap<>();
-                response.put("avatar", "/api/media/avatar/" + fileName);
+                response.put("avatar", fileName);
                 return ResponseEntity.ok(response);
             }
             return ResponseEntity.notFound().build();

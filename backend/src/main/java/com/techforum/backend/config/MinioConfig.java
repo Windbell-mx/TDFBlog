@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class MinioConfig {
-    @Value("${minio.internalUrl}")
-    private String internalUrl;
+    @Value("${minio.url}")
+    private String url;
 
     @Value("${minio.accessKey}")
     private String accessKey;
@@ -19,13 +19,13 @@ public class MinioConfig {
     @Bean
     public MinioClient minioClient() {
         MinioClient client = MinioClient.builder()
-                .endpoint(internalUrl)
+                .endpoint(url)
                 .credentials(accessKey, secretKey)
                 .build();
 
         try {
             client.listBuckets();
-            System.out.println("Minio连接成功: " + internalUrl);
+            System.out.println("Minio连接成功: " + url);
         } catch (Exception e) {
             System.err.println("Minio连接失败: " + e.getMessage());
             System.err.println("注意: Minio服务不可用，头像上传功能将不可用");

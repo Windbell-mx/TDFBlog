@@ -200,7 +200,7 @@ public class ArticleService {
         if (article.getUser() != null) {
             ArticleResponse.UserSummary userSummary = new ArticleResponse.UserSummary();
             userSummary.setId(article.getUser().getId());
-            userSummary.setUsername(article.getUser().getNickname());
+            userSummary.setNickname(article.getUser().getNickname());
             userSummary.setAvatar(convertAvatarUrl(article.getUser().getAvatar()));
             response.setUser(userSummary);
         }
@@ -208,10 +208,7 @@ public class ArticleService {
         return response;
     }
 
-    private String convertAvatarUrl(String fileName) {
-        if (fileName == null || fileName.isEmpty()) {
-            return null;
-        }
-        return "/api/media/avatar/" + fileName;
+    private String convertAvatarUrl(String avatar) {
+        return avatar;
     }
 }

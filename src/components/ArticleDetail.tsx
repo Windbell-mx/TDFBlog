@@ -94,8 +94,8 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthor
     });
   };
 
-  const user = article.user ?? { id: 0, nickname: '', username: '', avatar: '', email: '' };
-  const displayName = user.nickname || user.username || '未知用户';
+  const user = article.user ?? { id: 0, nickname: '', avatar: '', email: '' };
+  const displayName = user.nickname || '未知用户';
   const avatar = user.avatar || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20avatar%20portrait&image_size=square';
 
   return (
