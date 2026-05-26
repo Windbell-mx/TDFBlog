@@ -12,13 +12,20 @@ interface CreateArticleProps {
     category: string;
     permission: string
   }) => void;
+  article?: {
+    id: number;
+    title: string;
+    content: string;
+    category: string;
+    tags?: string[];
+  };
 }
 
-const CreateArticle = ({ onBack, onSave }: CreateArticleProps) => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [category, setCategory] = useState('技术文章');
-  const [tags, setTags] = useState<string[]>([]);
+const CreateArticle = ({ onBack, onSave, article }: CreateArticleProps) => {
+  const [title, setTitle] = useState(article?.title || '');
+  const [content, setContent] = useState(article?.content || '');
+  const [category, setCategory] = useState(article?.category || '技术文章');
+  const [tags, setTags] = useState<string[]>(article?.tags || []);
   const [tagInput, setTagInput] = useState('');
   const [permission, setPermission] = useState('public');
   const [isSaving, setIsSaving] = useState(false);
@@ -91,8 +98,11 @@ const CreateArticle = ({ onBack, onSave }: CreateArticleProps) => {
     setContent(editor.getHtml());
   };
 
-  const handleEditorCreated = (editor: any) => {
+  const handleEditorCreated = (editor: any, initialContent?: string) => {
     editorRef.current = editor;
+    if (initialContent && initialContent.trim()) {
+      editor.setHtml(initialContent);
+    }
   };
 
   return (
@@ -102,7 +112,7 @@ const CreateArticle = ({ onBack, onSave }: CreateArticleProps) => {
         <button className="back-button" onClick={onBack}>
           ← 返回首页
         </button>
-        <h1>发布内容</h1>
+        <h1>{article ? '编辑文章' : '发布内容'}</h1>
         <div className="header-actions">
           <div className="public-toggle">
             <label>
@@ -234,7 +244,7 @@ const CreateArticle = ({ onBack, onSave }: CreateArticleProps) => {
                 border: '1px solid #e8e8e8',
                 borderTop: 'none'
               }}
-              onCreated={handleEditorCreated}
+              onCreated={(editor) => handleEditorCreated(editor, article?.content || '')}
               onChange={handleEditorChange}
             />
           </div>

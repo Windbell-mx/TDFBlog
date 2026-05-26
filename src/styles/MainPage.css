@@ -241,12 +241,19 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  min-height: 350px;
 }
 
 .article-preview:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   border-color: #667eea;
+}
+
+.article-preview-content {
+  flex: 1;
 }
 
 .article-preview h4 {
@@ -273,7 +280,6 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #e0e0e0;
 }

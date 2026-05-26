@@ -69,7 +69,8 @@
 [data-theme="dark"] .article-title,
 [data-theme="dark"] .article-detail-title,
 [data-theme="dark"] .feature-card h4,
-[data-theme="dark"] .sidebar-card h3 {
+[data-theme="dark"] .sidebar-card h3,
+[data-theme="dark"] .article-preview h4 {
   color: var(--text-primary);
 }
 
@@ -200,6 +201,16 @@
   background: rgba(255, 87, 34, 0.2);
   color: #ff7043;
   border-color: rgba(255, 87, 34, 0.3);
+}
+
+[data-theme="dark"] .fancy-edit-btn {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: rgba(76, 175, 80, 0.3);
+  color: #66bb6a;
+}
+
+[data-theme="dark"] .fancy-edit-btn:hover {
+  background: rgba(76, 175, 80, 0.3);
 }
 
 /* 暗色模式下的标签 */

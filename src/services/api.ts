@@ -270,7 +270,7 @@ export const articleApi = (() => {
   let authorsCache: any[] | null = null;
 
   return {
-    createArticle: (article: { title: string; content: string; coverImage?: string; userId: number; category?: string }) => {
+    createArticle: (article: { title: string; content: string; coverImage?: string; userId: number; category?: string; tags?: string[] }) => {
       // 创建新文章时清除缓存
       authorsCache = null;
       return request<Article>('/articles', {
@@ -289,7 +289,7 @@ export const articleApi = (() => {
 
     getArticlesByUserId: (userId: number) => request<Article[]>(`/articles/user/${userId}`),
 
-    updateArticle: (id: number, article: { title: string; content: string; category?: string }) => {
+    updateArticle: (id: number, article: { title: string; content: string; category?: string; tags?: string[] }) => {
       // 更新文章时清除缓存
       authorsCache = null;
       return request<Article>(`/articles/${id}`, {

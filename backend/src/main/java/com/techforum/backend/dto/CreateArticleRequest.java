@@ -1,10 +1,13 @@
 package com.techforum.backend.dto;
 
+import java.util.List;
+
 public class CreateArticleRequest {
     private String title;
     private String content;
     private String userId;
     private String category;
+    private List<String> tags;
 
     public String getTitle() {
         return title;
@@ -36,5 +39,13 @@ public class CreateArticleRequest {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 }

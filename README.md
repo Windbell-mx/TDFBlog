@@ -132,7 +132,7 @@ JWT_SECRET=your_very_long_and_secure_jwt_secret_key_here
 JWT_EXPIRATION=86400
 
 # Database Configuration
-DB_URL=jdbc:mysql://localhost:3306/tech_forum?useSSL=false&serverTimezone=UTC&autoReconnect=true&useUnicode=true&characterEncoding=utf8
+DB_URL=jdbc:mysql://localhost:3306/database?useSSL=false&serverTimezone=UTC&autoReconnect=true&useUnicode=true&characterEncoding=utf8
 DB_USERNAME=root
 DB_PASSWORD=your_database_password
 
@@ -149,11 +149,11 @@ MAIL_USERNAME=your_email@example.com
 MAIL_PASSWORD=your_email_password
 
 # MinIO Configuration
-MINIO_INTERNAL_URL=http://127.0.0.1:9000
-MINIO_PUBLIC_URL=http://localhost:9000
-MINIO_USERNAME=minioadmin
-MINIO_PASSWORD=minioadmin
-MINIO_BUCKET_NAME=tdfblog
+MINIO_INTERNAL_URL=http://127.0.0.1:[port]
+MINIO_PUBLIC_URL=http://localhost:[port]
+MINIO_ACCESS_KEY=access_key
+MINIO_SECRET_KEY=secret_key
+MINIO_BUCKET_NAME=bucket_name
 ```
 
 4. 确保 MySQL 数据库已创建
@@ -165,22 +165,30 @@ CREATE DATABASE tech_forum CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```bash
 mvn spring-boot:run
 ```
-后端服务将运行在 http://localhost:8081
+后端服务将运行在 http://localhost:8080
 
-### 前端启动
+## 前端服务
 
-1. 安装依赖
+### 开发环境
+
 ```bash
 npm install
-```
-
-2. 运行开发服务器
-```bash
 npm run dev
 ```
+
 前端服务将运行在 http://localhost:5173
 
-**注意**：Vite 已配置代理，将 `/api` 请求自动转发到后端 `http://localhost:8081`，无需额外配置 CORS。
+**注意**：Vite 已配置代理，将 `/api` 请求自动转发到后端 `http://localhost:8080`，无需额外配置 CORS。
+
+### 前端服务模块
+
+- **api.ts** - API服务模块，处理所有后端API请求
+- **uploads.ts** - 图片上传与访问服务
+  - 头像URL处理
+  - 封面上传
+  - 图片预加载
+  - 图片验证
+  - CDN URL生成
 
 ### 生产环境构建
 
@@ -320,10 +328,17 @@ SOURCE backend/database/schema.sql;
 - **新增**: 主题状态管理（Context API）
 - **新增**: 暗色模式完整样式适配
 - **新增**: 统计数据API（文章总数、活跃用户、今日更新）
+- **新增**: 密码可视化切换功能（登录页面）
+- **新增**: 精选文章排序功能（最新/最热）
+- **新增**: uploads.ts图片上传与访问服务模块
 - **变更**: 后端端口从8081改为8080
 - **变更**: 前端配置支持环境变量配置
+- **变更**: 头像访问架构改为CDN直连，不再经过后端代理
+- **变更**: MinIO配置分离为连接地址和访问地址
 - **优化**: 前端配色方案（白色系）
 - **优化**: 主题切换无闪烁体验
+- **优化**: 头像文件名规范化（`uploads/{year}/{month}/{uuid}.ext`）
+- **修复**: 登录返回包中重复的username字段问题
 
 ### v2.1.0
 - **优化**: 前端API层添加缓存机制，防止重复请求

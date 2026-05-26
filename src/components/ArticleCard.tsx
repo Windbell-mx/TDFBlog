@@ -69,12 +69,14 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, onClick, onAuthorCli
       onClick={handleArticleClick}
       title="点击查看文章详情"
     >
-      <div className="article-header">
-        <span className="article-category">{article.category}</span>
-        <span className="article-date">{formatDate(article.date)}</span>
+      <div className="article-card-content">
+        <div className="article-header">
+          <span className="article-category">{article.category}</span>
+          <span className="article-date">{formatDate(article.date)}</span>
+        </div>
+        <h3 className="article-title">{article.title}</h3>
+        <p className="article-content">{extractPlainText(article.content)}</p>
       </div>
-      <h3 className="article-title">{article.title}</h3>
-      <p className="article-content">{extractPlainText(article.content)}</p>
       <div className="article-footer">
         <span className="article-reads">👁 {article.readCount}</span>
         {article.user && (

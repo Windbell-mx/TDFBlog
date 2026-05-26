@@ -8,6 +8,7 @@ public class ArticleResponse {
     private String title;
     private String content;
     private String category;
+    private java.util.List<String> tags;
     private String userId;
     private UserSummary user;
     private String coverImage;
@@ -79,6 +80,14 @@ public class ArticleResponse {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public java.util.List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(java.util.List<String> tags) {
+        this.tags = tags;
     }
 
     public String getUserId() {

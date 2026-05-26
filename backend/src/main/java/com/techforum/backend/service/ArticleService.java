@@ -190,6 +190,7 @@ public class ArticleService {
         response.setTitle(article.getTitle());
         response.setContent(article.getContent());
         response.setCategory(article.getCategory());
+        response.setTags(article.getTags());
         response.setUserId(article.getUserId());
         response.setCoverImage(article.getCoverImage());
         response.setReadCount(article.getReadCount());

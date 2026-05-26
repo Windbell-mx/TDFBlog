@@ -5,12 +5,16 @@ interface ArticleDetailProps {
   article: ApiArticle;
   onBack: () => void;
   onAuthorClick?: (authorId: number, authorName: string) => void;
+  onEdit?: (article: ApiArticle) => void;
   addToast: (message: string, type: 'success' | 'error' | 'info', duration?: number) => void;
 }
 
-const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthorClick, addToast }) => {
+const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthorClick, onEdit, addToast }) => {
   const [isCollected, setIsCollected] = useState(false);
   const [isLoadingCollection, setIsLoadingCollection] = useState(false);
+
+  const currentUserId = getCurrentUserId();
+  const isAuthor = article.user && currentUserId !== null && String(article.user.id) === String(currentUserId);
 
   useEffect(() => {
     const checkCollectionStatus = async () => {
@@ -132,6 +136,16 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthor
               {isLoadingCollection ? '操作中...' : (isCollected ? '已收藏' : '收藏')}
             </span>
           </button>
+          {isAuthor && onEdit && (
+            <button
+              className="fancy-edit-btn"
+              onClick={() => onEdit(article)}
+              title="编辑文章"
+            >
+              <span className="edit-icon">✏️</span>
+              <span className="edit-text">编辑</span>
+            </button>
+          )}
         </div>
       </div>
       <div className="article-detail-content" dangerouslySetInnerHTML={{ __html: article.content || '<p>无内容</p>' }} />

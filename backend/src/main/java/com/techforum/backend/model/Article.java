@@ -3,6 +3,8 @@ package com.techforum.backend.model;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "articles")
@@ -20,6 +22,11 @@ public class Article implements Serializable {
     private String content;
 
     private String category;
+
+    @ElementCollection
+    @CollectionTable(name = "article_tags", joinColumns = @JoinColumn(name = "article_id"))
+    @Column(name = "tag")
+    private List<String> tags = new ArrayList<>();
 
     @Column(name = "user_id")
     private String userId;
@@ -128,5 +135,13 @@ public class Article implements Serializable {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 }

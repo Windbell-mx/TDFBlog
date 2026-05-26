@@ -39,6 +39,9 @@ public class ArticleController {
         article.setContent(request.getContent());
         article.setUserId(request.getUserId());
         article.setCategory(request.getCategory());
+        if (request.getTags() != null) {
+            article.setTags(request.getTags());
+        }
 
         Article savedArticle = articleService.save(article);
         // 重新获取保存后的文章，确保返回正确的响应格式
@@ -58,6 +61,7 @@ public class ArticleController {
                     article.setTitle(request.getTitle() != null ? request.getTitle() : existingResponse.getTitle());
                     article.setContent(request.getContent() != null ? request.getContent() : existingResponse.getContent());
                     article.setCategory(request.getCategory() != null ? request.getCategory() : existingResponse.getCategory());
+                    article.setTags(request.getTags() != null ? request.getTags() : existingResponse.getTags());
                     article.setUserId(existingResponse.getUserId()); // 保持原有的用户ID
                     
                     // 保存更新

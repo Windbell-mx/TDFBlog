@@ -26,13 +26,9 @@ const Home = ({ onArticleClick, onAuthorClick, addToast }: HomeProps) => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'latest' | 'hot'>('latest');
   const [statistics, setStatistics] = useState<{ articleCount: number; userCount: number; todayUpdates: number } | null>(null);
-  const hasFetched = useRef(false); // 使用 ref 来标记是否已经获取过数据
+  const hasFetched = useRef(false); // 使用 ref 来标记是否已经获取过作者和统计数据
 
   useEffect(() => {
-    // 如果已经获取过数据，就不再重复获取
-    if (hasFetched.current) return;
-    hasFetched.current = true; // 标记已开始获取
-
     const fetchArticles = async (sort: string = 'latest') => {
       setIsLoading(true);
       try {
@@ -65,9 +61,15 @@ const Home = ({ onArticleClick, onAuthorClick, addToast }: HomeProps) => {
       }
     };
 
+    // 每次排序变化时都重新获取文章
     fetchArticles(sortBy);
-    fetchAuthors();
-    fetchStatistics();
+    
+    // 作者和统计数据只获取一次
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      fetchAuthors();
+      fetchStatistics();
+    }
   }, [addToast, sortBy]); // 依赖 addToast 和 sortBy
 
   const filteredArticles = articles.filter(article => {
@@ -103,6 +105,7 @@ const Home = ({ onArticleClick, onAuthorClick, addToast }: HomeProps) => {
         content: article.content,
         userId: currentUserId,
         category: article.category,
+        tags: article.tags,
       });
       console.log('文章发布成功:', response);
       const data = await articleApi.getAllArticles();

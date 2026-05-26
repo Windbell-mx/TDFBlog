@@ -1,9 +1,12 @@
 package com.techforum.backend.dto;
 
+import java.util.List;
+
 public class UpdateArticleRequest {
     private String title;
     private String content;
     private String category;
+    private List<String> tags;
     private String coverImage;
     private String permission;
 
@@ -29,6 +32,14 @@ public class UpdateArticleRequest {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 
     public String getCoverImage() {
