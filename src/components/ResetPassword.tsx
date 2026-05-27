@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import '../styles/Login.css';
-import { userApi, HttpError } from '../services/api';
-import { useSearchParams } from 'react-router-dom';
+import { userApi, HttpError, clearToken } from '../services/api';
 
 interface ResetPasswordProps {
-  onBack: () => void;
   addToast: (message: string, type: 'success' | 'error' | 'info', duration?: number) => void;
 }
 
-const ResetPassword = ({ onBack, addToast }: ResetPasswordProps) => {
+const ResetPassword = ({ addToast }: ResetPasswordProps) => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
 
@@ -18,10 +18,17 @@ const ResetPassword = ({ onBack, addToast }: ResetPasswordProps) => {
   const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
+    // 清除现有的登录状态，确保重置密码时不会有其他用户的登录信息
+    clearToken();
+
     if (!token) {
       addToast('无效的重置链接，缺少token', 'error');
     }
   }, [token, addToast]);
+
+  const handleBack = () => {
+    navigate('/login', { replace: true });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +63,7 @@ const ResetPassword = ({ onBack, addToast }: ResetPasswordProps) => {
       setIsSuccess(true);
       addToast('密码重置成功！', 'success');
       setTimeout(() => {
-        onBack();
+        handleBack();
       }, 2000);
     } catch (err: any) {
       console.error('重置密码失败:', err);
@@ -83,7 +90,7 @@ const ResetPassword = ({ onBack, addToast }: ResetPasswordProps) => {
               <h1>链接无效</h1>
               <p>抱歉，此重置链接无效或已过期</p>
             </div>
-            <button onClick={onBack} className="login-button">
+            <button onClick={handleBack} className="login-button">
               返回登录
             </button>
           </div>
@@ -94,7 +101,7 @@ const ResetPassword = ({ onBack, addToast }: ResetPasswordProps) => {
 
   return (
     <div className="login-container">
-      <div className="animation-side" onClick={onBack} style={{ cursor: 'pointer' }}>
+      <div className="animation-side" onClick={handleBack} style={{ cursor: 'pointer' }}>
         <div className="animation-content">
           <h2>重置密码</h2>
           <p>设置您的新密码</p>
@@ -151,7 +158,7 @@ const ResetPassword = ({ onBack, addToast }: ResetPasswordProps) => {
               <div className="login-footer">
                 <p>
                   想起密码了？
-                  <button onClick={onBack} className="toggle-button">
+                  <button onClick={handleBack} className="toggle-button">
                     返回登录
                   </button>
                 </p>
@@ -160,7 +167,7 @@ const ResetPassword = ({ onBack, addToast }: ResetPasswordProps) => {
           )}
 
           {isSuccess && (
-            <button onClick={onBack} className="login-button">
+            <button onClick={handleBack} className="login-button">
               返回登录
             </button>
           )}

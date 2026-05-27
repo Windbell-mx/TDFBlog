@@ -51,10 +51,10 @@ function App() {
               !isLoggedIn ? <Login onLogin={handleLogin} addToast={addToast} /> : <Navigate to="/" />
             } />
             <Route path="/forgot-password" element={
-              !isLoggedIn ? <ForgotPassword onBack={() => window.history.back()} addToast={addToast} /> : <Navigate to="/" />
+              !isLoggedIn ? <ForgotPassword addToast={addToast} /> : <Navigate to="/" />
             } />
             <Route path="/reset-password" element={
-              !isLoggedIn ? <ResetPassword onBack={() => window.history.back()} addToast={addToast} /> : <Navigate to="/" />
+              !isLoggedIn ? <ResetPassword addToast={addToast} /> : <Navigate to="/" />
             } />
             <Route path="/" element={
               isLoggedIn ? <MainPage onLogout={handleLogout} addToast={addToast} /> : <Navigate to="/login" />

@@ -1,29 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Login.css';
 import { userApi, HttpError } from '../services/api';
 
 interface ForgotPasswordProps {
-  onBack: () => void;
   addToast: (message: string, type: 'success' | 'error' | 'info', duration?: number) => void;
 }
 
-const ForgotPassword = ({ onBack, addToast }: ForgotPasswordProps) => {
+const ForgotPassword = ({ addToast }: ForgotPasswordProps) => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (hasSubmitted) {
+        return;
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [hasSubmitted]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    if (!email) {
-      addToast('请输入邮箱地址', 'error');
-      setIsLoading(false);
+    if (hasSubmitted) {
       return;
     }
 
+    if (!email) {
+      addToast('请输入邮箱地址', 'error');
+      return;
+    }
+
+    setIsLoading(true);
+    setHasSubmitted(true);
+
     try {
       await userApi.forgotPassword(email);
-      addToast('如果邮箱存在，重置密码链接已发送（请查看控制台）', 'success');
+      addToast('如果邮箱存在，重置密码链接已发送', 'success');
     } catch (err: any) {
       console.error('忘记密码请求失败:', err);
       if (err instanceof HttpError) {
@@ -31,14 +49,19 @@ const ForgotPassword = ({ onBack, addToast }: ForgotPasswordProps) => {
       } else {
         addToast('网络错误，请检查网络连接后重试。', 'error');
       }
+      setHasSubmitted(false);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleBack = () => {
+    navigate('/login', { replace: true });
+  };
+
   return (
     <div className="login-container">
-      <div className="animation-side" onClick={onBack} style={{ cursor: 'pointer' }}>
+      <div className="animation-side" onClick={handleBack} style={{ cursor: 'pointer' }}>
         <div className="animation-content">
           <h2>忘记密码？</h2>
           <p>没关系，我们来帮您找回</p>
@@ -66,6 +89,7 @@ const ForgotPassword = ({ onBack, addToast }: ForgotPasswordProps) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="请输入注册时的邮箱"
+                disabled={isLoading}
                 required
               />
             </div>
@@ -73,15 +97,15 @@ const ForgotPassword = ({ onBack, addToast }: ForgotPasswordProps) => {
             <button
               type="submit"
               className="login-button"
-              disabled={isLoading}
+              disabled={isLoading || hasSubmitted}
             >
-              {isLoading ? '发送中...' : '发送重置链接'}
+              {isLoading ? '发送中...' : (hasSubmitted ? '已发送' : '发送重置链接')}
             </button>
 
             <div className="login-footer">
               <p>
                 想起密码了？
-                <button onClick={onBack} className="toggle-button">
+                <button onClick={handleBack} className="toggle-button">
                   返回登录
                 </button>
               </p>

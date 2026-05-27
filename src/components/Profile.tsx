@@ -388,8 +388,18 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, viewedAuthor, onBack, addTo
     setIsEditArticleOpen(true);
   };
 
-  const handleViewArticle = (article: Article) => {
-    setViewingArticle(article);
+  const handleViewArticle = async (article: Article) => {
+    if (!article.content) {
+      try {
+        const fullArticle = await articleApi.getArticleById(article.id);
+        setViewingArticle({ ...article, ...fullArticle });
+      } catch (error) {
+        console.error('获取文章详情失败:', error);
+        setViewingArticle(article);
+      }
+    } else {
+      setViewingArticle(article);
+    }
   };
 
   const handleBackFromArticle = () => {
