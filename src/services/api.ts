@@ -24,16 +24,8 @@ export interface Article {
   content: string;
   coverImage?: string;
   category?: string;
+  tags?: string[];
   readCount?: number;
-  createdAt: string;
-  updatedAt: string;
-  user: User;
-}
-
-export interface Note {
-  id: number;
-  title: string;
-  content: string;
   createdAt: string;
   updatedAt: string;
   user: User;
@@ -96,11 +88,13 @@ async function request<T>(
   options: RequestInit & { skipAuthRedirect?: boolean } = {}
 ): Promise<T> {
   const token = getToken();
+  const isPublicUrl = url.includes('/users/login') || url.includes('/users/register') || 
+                      url.includes('/users/forgot-password') || url.includes('/users/reset-password');
   const response = await fetch(`${API_BASE_URL}${url}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` }),
+      ...(token && !isPublicUrl && { 'Authorization': `Bearer ${token}` }),
       ...options.headers,
     },
   });
@@ -332,30 +326,6 @@ export const articleApi = (() => {
     },
   };
 })();
-
-// 笔记相关API
-export const noteApi = {
-  createNote: (note: { title: string; content: string; userId: number }) =>
-    request<Note>('/notes', {
-      method: 'POST',
-      body: JSON.stringify(note),
-    }),
-
-  getNoteById: (id: number) => request<Note>(`/notes/${id}`),
-
-  getNotesByUserId: (userId: number) => request<Note[]>(`/notes/user/${userId}`),
-
-  updateNote: (id: number, note: { title: string; content: string }) =>
-    request<Note>(`/notes/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(note),
-    }),
-
-  deleteNote: (id: number) =>
-    request<void>(`/notes/${id}`, {
-      method: 'DELETE',
-    }),
-};
 
 // 统计相关API
 export const statisticsApi = {

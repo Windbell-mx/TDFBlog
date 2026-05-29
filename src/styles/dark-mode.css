@@ -213,6 +213,16 @@
   background: rgba(76, 175, 80, 0.3);
 }
 
+[data-theme="dark"] .fancy-delete-btn {
+  background: rgba(244, 67, 54, 0.2);
+  border-color: rgba(244, 67, 54, 0.3);
+  color: #ef5350;
+}
+
+[data-theme="dark"] .fancy-delete-btn:hover:not(:disabled) {
+  background: rgba(244, 67, 54, 0.3);
+}
+
 /* 暗色模式下的标签 */
 [data-theme="dark"] .tag {
   background: rgba(102, 126, 234, 0.1);
@@ -304,4 +314,83 @@
 [data-theme="dark"] .features-section h3,
 [data-theme="dark"] .latest-articles h3 {
   color: var(--text-primary);
+}
+
+/* 暗色模式下的A4纸布局 */
+[data-theme="dark"] .article-detail-container {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+/* 暗色模式下的用户头像按钮 */
+[data-theme="dark"] .user-avatar-button {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .user-avatar-button:hover {
+  border-color: var(--accent-color);
+}
+
+/* 暗色模式下的用户菜单 */
+[data-theme="dark"] .user-menu {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+/* 暗色模式下的菜单项 */
+[data-theme="dark"] .menu-item {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .menu-item:hover {
+  background: var(--bg-tertiary);
+}
+
+/* 暗色模式下的退出登录项 */
+[data-theme="dark"] .logout-item:hover {
+  background: rgba(244, 67, 54, 0.1);
+  color: #ef5350;
+}
+
+/* 暗色模式下的菜单分隔线 */
+[data-theme="dark"] .menu-divider {
+  background: var(--border-color);
+}
+
+/* 暗色模式下的个人信息弹窗按钮 */
+[data-theme="dark"] .modal-edit-btn {
+  background: #059669;
+}
+
+[data-theme="dark"] .modal-edit-btn:hover {
+  background: #047857;
+}
+
+[data-theme="dark"] .modal-delete-btn {
+  background: #dc2626;
+}
+
+[data-theme="dark"] .modal-delete-btn:hover {
+  background: #b91c1c;
+}
+
+[data-theme="dark"] .modal-cancel-btn {
+  background: #4b5563;
+}
+
+[data-theme="dark"] .modal-cancel-btn:hover {
+  background: #374151;
+}
+
+[data-theme="dark"] .modal-confirm-delete-btn {
+  background: #dc2626;
+}
+
+[data-theme="dark"] .modal-confirm-delete-btn:hover {
+  background: #b91c1c;
+}
+
+[data-theme="dark"] .delete-confirm-text {
+  color: var(--text-secondary);
 }

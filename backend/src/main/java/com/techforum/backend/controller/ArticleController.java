@@ -42,8 +42,9 @@ public class ArticleController {
         if (request.getTags() != null) {
             article.setTags(request.getTags());
         }
-
+        
         Article savedArticle = articleService.save(article);
+        
         // 重新获取保存后的文章，确保返回正确的响应格式
         return articleService.findById(savedArticle.getId())
                 .map(ResponseEntity::ok)
@@ -52,26 +53,32 @@ public class ArticleController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ArticleResponse> updateArticle(@PathVariable Long id, @RequestBody UpdateArticleRequest request) {
-        // 先获取现有文章
-        return articleService.findById(id)
-                .map(existingResponse -> {
-                    // 创建文章对象进行更新
-                    Article article = new Article();
-                    article.setId(id);
-                    article.setTitle(request.getTitle() != null ? request.getTitle() : existingResponse.getTitle());
-                    article.setContent(request.getContent() != null ? request.getContent() : existingResponse.getContent());
-                    article.setCategory(request.getCategory() != null ? request.getCategory() : existingResponse.getCategory());
-                    article.setTags(request.getTags() != null ? request.getTags() : existingResponse.getTags());
-                    article.setUserId(existingResponse.getUserId()); // 保持原有的用户ID
-                    
-                    // 保存更新
-                    articleService.save(article);
-                    
-                    // 重新获取更新后的文章
-                    return articleService.findById(id)
-                            .map(ResponseEntity::ok)
-                            .orElse(ResponseEntity.notFound().build());
-                })
+        // 从数据库获取实际的文章实体
+        Article article = articleService.findEntityById(id);
+        if (article == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        // 更新字段
+        if (request.getTitle() != null) {
+            article.setTitle(request.getTitle());
+        }
+        if (request.getContent() != null) {
+            article.setContent(request.getContent());
+        }
+        if (request.getCategory() != null) {
+            article.setCategory(request.getCategory());
+        }
+        if (request.getTags() != null) {
+            article.setTags(request.getTags());
+        }
+        
+        // 保存更新
+        Article savedArticle = articleService.save(article);
+        
+        // 重新获取更新后的文章
+        return articleService.findById(savedArticle.getId())
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 

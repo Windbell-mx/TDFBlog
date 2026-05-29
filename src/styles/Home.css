@@ -463,6 +463,32 @@ body {
   transform: translateY(-2px);
 }
 
+/* 删除按钮样式 */
+.fancy-delete-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  border-radius: 12px;
+  color: #f44336;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.fancy-delete-btn:hover:not(:disabled) {
+  background: rgba(244, 67, 54, 0.2);
+  transform: translateY(-2px);
+}
+
+.fancy-delete-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .fancy-collect-btn.loading {
   opacity: 0.7;
   cursor: not-allowed;
@@ -592,6 +618,28 @@ body {
   max-width: 100%;
   border-radius: 8px;
   margin: 1rem 0;
+}
+
+/* 文章标签样式 */
+.article-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  padding: 0.35rem 0.8rem;
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.article-tag:hover {
+  background: rgba(102, 126, 234, 0.2);
+  transform: translateY(-1px);
 }
 
 /* 加载状态 */
@@ -958,6 +1006,19 @@ body {
   }
 }
 
+/* A4纸布局的文章详情页 */
+.article-detail-container {
+  width: 794px;
+  min-height: 1122px;
+  margin: 2rem auto;
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #d0d0d0;
+  padding: 40px 50px;
+  box-sizing: border-box;
+}
+
 /* 暗色模式样式 */
 [data-theme="dark"] body {
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
@@ -1090,4 +1151,19 @@ body {
   background: #667eea;
   color: #ffffff;
   border-color: #667eea;
+}
+
+[data-theme="dark"] .article-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+[data-theme="dark"] .article-tag {
+  background: rgba(102, 126, 234, 0.2);
+  color: #667eea;
+}
+
+[data-theme="dark"] .article-tag:hover {
+  background: rgba(102, 126, 234, 0.3);
 }

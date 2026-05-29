@@ -18,14 +18,16 @@ interface EditArticleProps {
     title: string;
     content: string;
     createdAt: string;
+    category?: string;
+    tags?: string[];
   };
 }
 
 const EditArticle = ({ onBack, onSave, article }: EditArticleProps) => {
   const [title, setTitle] = useState(article.title);
   const [content, setContent] = useState(article.content);
-  const [category, setCategory] = useState('技术文章');
-  const [tags, setTags] = useState<string[]>([]);
+  const [category, setCategory] = useState(article.category || '技术文章');
+  const [tags, setTags] = useState<string[]>(article.tags || []);
   const [tagInput, setTagInput] = useState('');
   const [permission, setPermission] = useState('public');
   const [isSaving, setIsSaving] = useState(false);

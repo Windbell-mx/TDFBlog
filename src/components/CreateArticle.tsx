@@ -25,8 +25,7 @@ const CreateArticle = ({ onBack, onSave, article }: CreateArticleProps) => {
   const [title, setTitle] = useState(article?.title || '');
   const [content, setContent] = useState(article?.content || '');
   const [category, setCategory] = useState(article?.category || '技术文章');
-  const [tags, setTags] = useState<string[]>(article?.tags || []);
-  const [tagInput, setTagInput] = useState('');
+  const [tagsString, setTagsString] = useState(article?.tags?.join(', ') || '');
   const [permission, setPermission] = useState('public');
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(new Date().toLocaleString());
@@ -45,23 +44,6 @@ const CreateArticle = ({ onBack, onSave, article }: CreateArticleProps) => {
     };
   }, [title, content]);
 
-  const handleAddTag = () => {
-    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-      setTags([...tags, tagInput.trim()]);
-      setTagInput('');
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleAddTag();
-    }
-  };
-
   const handleSave = () => {
     if (!title.trim()) {
       alert('请输入标题');
@@ -72,6 +54,12 @@ const CreateArticle = ({ onBack, onSave, article }: CreateArticleProps) => {
       alert('请输入内容');
       return;
     }
+
+    // 将字符串转换为标签数组
+    const tags = tagsString
+      .split(',')
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0);
 
     setIsSaving(true);
 
@@ -91,7 +79,6 @@ const CreateArticle = ({ onBack, onSave, article }: CreateArticleProps) => {
 
   const handlePreview = () => {
     // 预览功能实现
-    console.log('预览功能');
   };
 
   const handleEditorChange = (editor: any) => {
@@ -182,31 +169,13 @@ const CreateArticle = ({ onBack, onSave, article }: CreateArticleProps) => {
 
             <div className="meta-item tags-item">
               <label>标签</label>
-              <div className="tag-input-container">
-                <div className="tags">
-                  {tags.map((tag, index) => (
-                    <div key={index} className="tag">
-                      {tag}
-                      <button 
-                        className="tag-remove" 
-                        onClick={() => handleRemoveTag(tag)}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <div className="tag-input-wrapper">
-                  <input
-                    type="text"
-                    className="tag-input"
-                    placeholder="输入标签后按回车添加"
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                  />
-                </div>
-              </div>
+              <input
+                type="text"
+                className="category-select"
+                placeholder="请输入标签，多个标签用逗号分隔"
+                value={tagsString}
+                onChange={(e) => setTagsString(e.target.value)}
+              />
             </div>
           </div>
         </div>

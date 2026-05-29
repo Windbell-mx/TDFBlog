@@ -52,30 +52,16 @@ public class ArticleService {
     }
 
     public Optional<ArticleResponse> findById(Long id) {
-        try {
-            // 尝试从缓存获取
-            ArticleResponse article = (ArticleResponse) redisUtil.get(ARTICLE_CACHE_KEY + id);
-            if (article != null) {
-                return Optional.of(article);
-            }
-        } catch (Exception e) {
-            System.err.println("Redis读取失败，从数据库获取: " + e.getMessage());
-        }
-
-        // 从数据库获取
+        // 临时禁用缓存，从数据库获取最新数据
+        System.out.println("findById - 从数据库获取文章ID: " + id);
         Optional<Article> articleOptional = articleRepository.findById(id);
         Optional<ArticleResponse> responseOptional = articleOptional.map(this::convertToResponse);
-        
-        try {
-            if (responseOptional.isPresent()) {
-                // 缓存结果
-                redisUtil.set(ARTICLE_CACHE_KEY + id, responseOptional.get(), CACHE_EXPIRY);
-            }
-        } catch (Exception e) {
-            System.err.println("Redis写入失败: " + e.getMessage());
-        }
-        
         return responseOptional;
+    }
+
+    public Article findEntityById(Long id) {
+        Optional<Article> articleOptional = articleRepository.findById(id);
+        return articleOptional.orElse(null);
     }
 
     public Article save(Article article) {
@@ -196,6 +182,8 @@ public class ArticleService {
         response.setReadCount(article.getReadCount());
         response.setCreatedAt(article.getCreatedAt());
         response.setUpdatedAt(article.getUpdatedAt());
+        
+        System.out.println("convertToResponse - 文章ID: " + article.getId() + ", 分类: " + article.getCategory() + ", 标签: " + article.getTags());
 
         // 只返回用户的基本信息
         if (article.getUser() != null) {

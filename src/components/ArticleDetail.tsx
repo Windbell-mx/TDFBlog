@@ -1,17 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { collectionApi, getCurrentUserId, type Article as ApiArticle } from '../services/api';
+import { articleApi, collectionApi, getCurrentUserId, type Article as ApiArticle } from '../services/api';
+import ConfirmDialog from './ConfirmDialog';
 
 interface ArticleDetailProps {
   article: ApiArticle;
   onBack: () => void;
   onAuthorClick?: (authorId: number, authorName: string) => void;
   onEdit?: (article: ApiArticle) => void;
+  onDelete?: () => void;
   addToast: (message: string, type: 'success' | 'error' | 'info', duration?: number) => void;
 }
 
-const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthorClick, onEdit, addToast }) => {
+const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthorClick, onEdit, onDelete, addToast }) => {
   const [isCollected, setIsCollected] = useState(false);
   const [isLoadingCollection, setIsLoadingCollection] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+  const handleDelete = async () => {
+    if (!article.id) {
+      addToast('文章ID无效', 'error');
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await articleApi.deleteArticle(article.id);
+      addToast('文章删除成功', 'success');
+      if (onDelete) {
+        onDelete();
+      }
+    } catch (error) {
+      console.error('删除文章失败:', error);
+      addToast('删除文章失败，请稍后重试', 'error');
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteConfirmOpen(false);
+    }
+  };
 
   const currentUserId = getCurrentUserId();
   const isAuthor = article.user && currentUserId !== null && String(article.user.id) === String(currentUserId);
@@ -123,6 +149,13 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthor
           </span>
           <span className="article-date">{formatDate(article.createdAt)}</span>
           <span className="article-category">{article.category || '技术文章'}</span>
+          {article.tags && article.tags.length > 0 && (
+            <div className="article-tags">
+              {article.tags.map((tag, index) => (
+                <span key={index} className="article-tag">{tag}</span>
+              ))}
+            </div>
+          )}
           <span className="article-reads">👁 {article.readCount || 0}</span>
           <button
             className={`fancy-collect-btn ${isCollected ? 'collected' : ''} ${isLoadingCollection ? 'loading' : ''}`}
@@ -146,9 +179,29 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthor
               <span className="edit-text">编辑</span>
             </button>
           )}
+          {isAuthor && onDelete && (
+            <button
+              className="fancy-delete-btn"
+              onClick={() => setIsDeleteConfirmOpen(true)}
+              disabled={isDeleting}
+              title="删除文章"
+            >
+              <span className="delete-icon">🗑️</span>
+              <span className="delete-text">{isDeleting ? '删除中...' : '删除'}</span>
+            </button>
+          )}
         </div>
       </div>
       <div className="article-detail-content" dangerouslySetInnerHTML={{ __html: article.content || '<p>无内容</p>' }} />
+      <ConfirmDialog
+        isOpen={isDeleteConfirmOpen}
+        title="确认删除"
+        message="确定要删除这篇文章吗？此操作不可恢复！"
+        confirmText="删除"
+        cancelText="取消"
+        onConfirm={handleDelete}
+        onCancel={() => setIsDeleteConfirmOpen(false)}
+      />
     </div>
   );
 };

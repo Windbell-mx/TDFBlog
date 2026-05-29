@@ -71,20 +71,9 @@ CREATE TABLE collections (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ==============================================
--- Notes Table (v2.0.0)
--- Note: user_id 改为 VARCHAR(32)
+-- 注意：学习笔记已合并到文章表中
+-- 分类为 "学习笔记" 的文章即为原来的笔记
 -- ==============================================
-DROP TABLE IF EXISTS notes;
-
-CREATE TABLE notes (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL COMMENT '笔记标题',
-    content TEXT COMMENT '笔记内容',
-    user_id VARCHAR(32) COMMENT '用户ID，关联users表',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    INDEX idx_user_id (user_id),
-    INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ==============================================

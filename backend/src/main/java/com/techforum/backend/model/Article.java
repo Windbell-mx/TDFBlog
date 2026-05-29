@@ -23,7 +23,7 @@ public class Article implements Serializable {
 
     private String category;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "article_tags", joinColumns = @JoinColumn(name = "article_id"))
     @Column(name = "tag")
     private List<String> tags = new ArrayList<>();

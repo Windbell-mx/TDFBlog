@@ -4,7 +4,6 @@ import com.techforum.backend.model.Article;
 import com.techforum.backend.model.User;
 import com.techforum.backend.repository.ArticleRepository;
 import com.techforum.backend.repository.CollectionRepository;
-import com.techforum.backend.repository.NoteRepository;
 import com.techforum.backend.repository.UserRepository;
 import com.techforum.backend.util.MinioUtil;
 import com.techforum.backend.util.RedisUtil;
@@ -22,9 +21,6 @@ public class UserService {
     
     @Autowired
     private ArticleRepository articleRepository;
-    
-    @Autowired
-    private NoteRepository noteRepository;
     
     @Autowired
     private CollectionRepository collectionRepository;
@@ -129,7 +125,6 @@ public class UserService {
         }
         
         articleRepository.deleteByUserId(userId);
-        noteRepository.deleteByUserId(userId);
         collectionRepository.deleteByUserId(userId);
         
         userRepository.deleteById(userId);
