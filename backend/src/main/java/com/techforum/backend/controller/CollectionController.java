@@ -4,6 +4,8 @@ import com.techforum.backend.model.Collection;
 import com.techforum.backend.service.CollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -18,9 +20,19 @@ public class CollectionController {
     private CollectionService collectionService;
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> addCollection(@RequestBody Map<String, String> request) {
-        String userId = request.get("userId");
-        Long articleId = Long.valueOf(request.get("articleId"));
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Map<String, Object>> addCollection(
+            @RequestBody Map<String, Long> request,
+            Authentication authentication) {
+        String userId = authentication.getName();
+        Long articleId = request.get("articleId");
+        
+        if (articleId == null) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "文章ID不能为空");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
         
         Collection collection = collectionService.addCollection(userId, articleId);
         
@@ -38,10 +50,12 @@ public class CollectionController {
     }
 
     @DeleteMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, Object>> removeCollection(
-            @RequestParam String userId,
-            @RequestParam Long articleId) {
+            @RequestParam Long articleId,
+            Authentication authentication) {
         
+        String userId = authentication.getName();
         collectionService.removeCollection(userId, articleId);
         
         Map<String, Object> response = new HashMap<>();
@@ -51,14 +65,15 @@ public class CollectionController {
     }
     
     @PostMapping("/remove")
-    public ResponseEntity<Map<String, Object>> removeCollectionPost(@RequestBody Map<String, String> request) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Map<String, Object>> removeCollectionPost(
+            @RequestBody Map<String, Long> request,
+            Authentication authentication) {
         try {
-            String userId = request.get("userId");
-            Long articleId = Long.valueOf(request.get("articleId"));
+            String userId = authentication.getName();
+            Long articleId = request.get("articleId");
             
-            System.out.println("取消收藏请求: userId=" + userId + ", articleId=" + articleId);
-            
-            if (userId == null || articleId == null) {
+            if (articleId == null) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
                 errorResponse.put("message", "参数错误");
@@ -72,8 +87,6 @@ public class CollectionController {
             response.put("message", "取消收藏成功");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("取消收藏失败: " + e.getMessage());
-            e.printStackTrace();
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
             errorResponse.put("message", "操作失败，请稍后重试");

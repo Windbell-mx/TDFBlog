@@ -21,6 +21,8 @@ import org.springframework.http.ResponseCookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,6 +66,9 @@ public class UserController {
 
     private static final String USER_CACHE_KEY = "user:";
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+    private static final long RATE_LIMIT_WINDOW_SECONDS = 3600;  // 1 小时窗口
+    private static final int MAX_REGISTER_PER_WINDOW = 3;  // 每小时最多注册 3 次
+    private static final int MAX_FORGOT_PASSWORD_PER_WINDOW = 3;  // 每小时最多请求 3 次
 
     private UserResponse convertToUserResponse(User user) {
         UserResponse response = new UserResponse();
@@ -80,6 +85,18 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request, HttpServletRequest servletRequest) {
+        // 速率限制：基于 IP 限制注册频率
+        String clientIp = getClientIp(servletRequest);
+        String rateKey = "rate:register:" + clientIp;
+        Object rateCount = redisUtil.get(rateKey);
+        int currentCount = rateCount == null ? 0 : (Integer) rateCount;
+        if (currentCount >= MAX_REGISTER_PER_WINDOW) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "注册请求过于频繁，请稍后再试");
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(null);
+        }
+        redisUtil.set(rateKey, currentCount + 1, RATE_LIMIT_WINDOW_SECONDS);
+
         Optional<User> existingUser = userService.findByEmail(request.getEmail());
         if (existingUser.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -105,6 +122,21 @@ public class UserController {
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
             .body(new AuthResponse(token, convertToUserResponse(savedUser)));
+    }
+
+    private String getClientIp(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("X-Real-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        // X-Forwarded-For 可能包含多个 IP，取第一个
+        if (ip != null && ip.contains(",")) {
+            ip = ip.split(",")[0].trim();
+        }
+        return ip;
     }
 
     @PostMapping("/login")
@@ -230,7 +262,16 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable String id, @RequestBody Map<String, String> updates) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable String id,
+            @RequestBody Map<String, String> updates,
+            Authentication authentication) {
+        // 验证是否为本人操作
+        if (!id.equals(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        
         Optional<User> userOptional = userService.findById(id);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
@@ -260,7 +301,15 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable String id,
+            Authentication authentication) {
+        // 验证是否为本人操作
+        if (!id.equals(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        
         Optional<User> userOptional = userService.findById(id);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
@@ -275,12 +324,22 @@ public class UserController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        // 速率限制：基于 IP 限制忘记密码请求频率
+        String clientIp = request.getEmail();  // 基于邮箱限制，防止针对特定邮箱轰炸
+        String rateKey = "rate:forgot-password:" + clientIp;
+        Object rateCount = redisUtil.get(rateKey);
+        int currentCount = rateCount == null ? 0 : (Integer) rateCount;
+        if (currentCount >= MAX_FORGOT_PASSWORD_PER_WINDOW) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("请求过于频繁，请稍后再试");
+        }
+        redisUtil.set(rateKey, currentCount + 1, RATE_LIMIT_WINDOW_SECONDS);
+
         Optional<User> userOptional = userService.findByEmail(request.getEmail());
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             String resetToken = UUID.randomUUID().toString();
             user.setResetToken(resetToken);
-            user.setResetTokenExpiry(LocalDateTime.now().plusHours(1));
+            user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(30));  // 缩短至 30 分钟
             userService.save(user);
 
             try {
@@ -296,6 +355,15 @@ public class UserController {
 
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+        // 速率限制：基于 token 限制重置频率
+        String rateKey = "rate:reset-password:" + request.getToken();
+        Object rateCount = redisUtil.get(rateKey);
+        int currentCount = rateCount == null ? 0 : (Integer) rateCount;
+        if (currentCount >= 5) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("重置请求过于频繁，请稍后再试");
+        }
+        redisUtil.set(rateKey, currentCount + 1, 300);  // 5 分钟窗口
+
         Optional<User> userOptional = userService.findByResetToken(request.getToken());
         if (userOptional.isPresent()) {
             User user = userOptional.get();

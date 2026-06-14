@@ -7,6 +7,8 @@ import com.techforum.backend.model.Article;
 import com.techforum.backend.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,11 +35,14 @@ public class ArticleController {
     }
 
     @PostMapping
-    public ResponseEntity<ArticleResponse> createArticle(@RequestBody CreateArticleRequest request) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ArticleResponse> createArticle(
+            @RequestBody CreateArticleRequest request,
+            Authentication authentication) {
         Article article = new Article();
         article.setTitle(request.getTitle());
         article.setContent(request.getContent());
-        article.setUserId(request.getUserId());
+        article.setUserId(authentication.getName());
         article.setCategory(request.getCategory());
         if (request.getTags() != null) {
             article.setTags(request.getTags());
@@ -52,11 +57,20 @@ public class ArticleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ArticleResponse> updateArticle(@PathVariable Long id, @RequestBody UpdateArticleRequest request) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ArticleResponse> updateArticle(
+            @PathVariable Long id,
+            @RequestBody UpdateArticleRequest request,
+            Authentication authentication) {
         // 从数据库获取实际的文章实体
         Article article = articleService.findEntityById(id);
         if (article == null) {
             return ResponseEntity.notFound().build();
+        }
+        
+        // 验证是否为文章作者
+        if (!article.getUserId().equals(authentication.getName())) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
         }
         
         // 更新字段
@@ -83,12 +97,22 @@ public class ArticleController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteArticle(@PathVariable Long id) {
-        if (articleService.findById(id).isPresent()) {
-            articleService.deleteById(id);
-            return ResponseEntity.ok().build();
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> deleteArticle(
+            @PathVariable Long id,
+            Authentication authentication) {
+        Article article = articleService.findEntityById(id);
+        if (article == null) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
+        
+        // 验证是否为文章作者
+        if (!article.getUserId().equals(authentication.getName())) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+        }
+        
+        articleService.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/user/{userId}")

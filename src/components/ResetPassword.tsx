@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import '../styles/Login.css';
-import { userApi, HttpError, clearToken } from '../services/api';
+import { userApi, HttpError, clearUser } from '../services/api';
 
 interface ResetPasswordProps {
   addToast: (message: string, type: 'success' | 'error' | 'info', duration?: number) => void;
@@ -19,7 +19,7 @@ const ResetPassword = ({ addToast }: ResetPasswordProps) => {
 
   useEffect(() => {
     // 清除现有的登录状态，确保重置密码时不会有其他用户的登录信息
-    clearToken();
+    clearUser();
 
     if (!token) {
       addToast('无效的重置链接，缺少token', 'error');

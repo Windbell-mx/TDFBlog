@@ -49,7 +49,6 @@ public class EmailService {
 
             mailSender.send(message);
             System.out.println("密码重置邮件已发送至: " + toEmail);
-            System.out.println("重置链接: " + resetLink);
         } catch (Exception e) {
             System.err.println("发送邮件失败: " + e.getMessage());
             e.printStackTrace();

@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.annotation.PostConstruct;
+
 @Component
 public class JwtUtil {
     @Value("${jwt.secret}")
@@ -23,6 +25,13 @@ public class JwtUtil {
 
     @Value("${jwt.expiration}")
     private long expiration;
+
+    @PostConstruct
+    public void init() {
+        if (secret == null || secret.isBlank() || secret.length() < 32) {
+            throw new IllegalStateException("JWT secret must be configured and at least 32 characters long");
+        }
+    }
 
     public static String generateEmailHash(String email) {
         try {

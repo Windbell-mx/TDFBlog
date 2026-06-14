@@ -1,7 +1,6 @@
 // API服务文件，用于与后端通信
 
 const API_BASE_URL = '/api';
-const TOKEN_KEY = 'tech_forum_token';
 const USER_KEY = 'tech_forum_user';
 
 // 类型定义
@@ -32,18 +31,8 @@ export interface Article {
 }
 
 // 获取token
-export const getToken = (): string | null => {
-  return localStorage.getItem(TOKEN_KEY);
-};
-
-// 存储token
-export const setToken = (token: string): void => {
-  localStorage.setItem(TOKEN_KEY, token);
-};
-
-// 清除token
-export const clearToken = (): void => {
-  localStorage.removeItem(TOKEN_KEY);
+// Token 存储已移除 —— 后端使用 httpOnly cookie 管理认证令牌
+export const clearUser = (): void => {
   localStorage.removeItem(USER_KEY);
 };
 
@@ -66,7 +55,9 @@ export const setUser = (user: any): void => {
 
 // 检查是否已登录
 export const isAuthenticated = (): boolean => {
-  return !!getToken();
+  // 由于 token 存放在 httpOnly cookie 中，前端无法直接读取。
+  // 使用已缓存的用户信息作为登录态判断（若需要更强验证，可调用 /users/me）。
+  return !!getUser();
 };
 
 // 自定义错误类，包含HTTP状态码和错误信息
@@ -87,15 +78,12 @@ async function request<T>(
   url: string,
   options: RequestInit & { skipAuthRedirect?: boolean } = {}
 ): Promise<T> {
-  const token = getToken();
-  const isPublicUrl = url.includes('/users/login') || url.includes('/users/register') || 
-                      url.includes('/users/forgot-password') || url.includes('/users/reset-password');
+  // 不再在前端添加 Authorization 头，后端使用 httpOnly cookie 进行认证。
   const response = await fetch(`${API_BASE_URL}${url}`, {
     ...options,
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...(token && !isPublicUrl && { 'Authorization': `Bearer ${token}` }),
       ...options.headers,
     },
   });
@@ -126,7 +114,7 @@ async function request<T>(
     // 只有在不是登录/注册接口，且没有设置skipAuthRedirect的情况下，才处理401
     if (response.status === 401 && !options.skipAuthRedirect && 
         !url.includes('/users/login') && !url.includes('/users/register')) {
-      clearToken();
+      clearUser();
       window.location.href = '/';
     }
     
@@ -145,7 +133,7 @@ async function request<T>(
 // 用户相关API
 export const userApi = {
   register: async (user: { username: string; email: string; password: string }) => {
-    const response = await request<{ token: string; user: User }>('/users/register', {
+    const response = await request<{ user: User }>('/users/register', {
       method: 'POST',
       body: JSON.stringify(user),
       skipAuthRedirect: true,
@@ -155,7 +143,7 @@ export const userApi = {
   },
 
   login: async (credentials: { email: string; password: string; captchaToken?: string }) => {
-    const response = await request<{ token: string; user: User }>('/users/login', {
+    const response = await request<{ user: User }>('/users/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
       skipAuthRedirect: true,
@@ -165,7 +153,8 @@ export const userApi = {
   },
 
   logout: () => {
-    clearToken();
+    // 清除前端缓存的用户信息（后端若有 logout 接口，可在此调用）
+    clearUser();
   },
 
   getUserById: (id: number) => request<User>(`/users/${id}`),
@@ -173,20 +162,15 @@ export const userApi = {
   uploadAvatar: async (id: number, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    const token = getToken();
-
     const response = await fetch(`${API_BASE_URL}/users/${id}/avatar`, {
       method: 'POST',
       credentials: 'include',
-      headers: {
-        ...(token && { 'Authorization': `Bearer ${token}` }),
-      },
       body: formData,
     });
 
     if (!response.ok) {
       if (response.status === 401) {
-        clearToken();
+        clearUser();
         window.location.href = '/';
         throw new HttpError('Unauthorized', 401);
       }
@@ -197,12 +181,9 @@ export const userApi = {
   },
 
   deleteUser: async (id: number): Promise<void> => {
-    const token = getToken();
     const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      credentials: 'include',
     });
 
     if (response.status === 204 || response.ok) {
@@ -210,7 +191,7 @@ export const userApi = {
     }
 
     if (response.status === 401) {
-      clearToken();
+      clearUser();
       window.location.href = '/';
       throw new HttpError('Unauthorized', 401);
     }
@@ -303,14 +284,9 @@ export const articleApi = (() => {
     uploadCoverImage: (id: number, file: File) => {
       const formData = new FormData();
       formData.append('file', file);
-      const token = getToken();
-
       return fetch(`${API_BASE_URL}/articles/${id}/cover`, {
         method: 'POST',
         credentials: 'include',
-        headers: {
-          ...(token && { 'Authorization': `Bearer ${token}` }),
-        },
         body: formData,
       });
     },

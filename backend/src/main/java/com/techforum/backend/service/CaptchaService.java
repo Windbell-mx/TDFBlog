@@ -17,9 +17,11 @@ public class CaptchaService {
 
     private static final String CAPTCHA_PREFIX = "captcha:";
     private static final String FAILED_ATTEMPTS_PREFIX = "login_failed:";
-    private static final int MAX_FAILED_ATTEMPTS = 3;
+    private static final String LOCKOUT_PREFIX = "login_locked:";
+    private static final int MAX_FAILED_ATTEMPTS = 5;
     private static final long CAPTCHA_EXPIRE_SECONDS = 300;
-    private static final long LOCKOUT_EXPIRE_SECONDS = 300;
+    private static final long LOCKOUT_EXPIRE_SECONDS = 900;  // 15 分钟锁定
+    private static final long GRACE_PERIOD_EXPIRE_SECONDS = 600;  // 验证码触发后 10 分钟冷却
 
     public Map<String, Object> generateCaptcha() {
         String token = UUID.randomUUID().toString();
@@ -77,6 +79,11 @@ public class CaptchaService {
     }
 
     public boolean isCaptchaRequired(String email) {
+        // 先检查是否被锁定
+        if (isAccountLocked(email)) {
+            return false;  // 锁定期间直接拒绝，不显示验证码
+        }
+        
         String key = FAILED_ATTEMPTS_PREFIX + email;
         Object attemptsObj = redisUtil.get(key);
         
@@ -88,6 +95,12 @@ public class CaptchaService {
         return attempts >= MAX_FAILED_ATTEMPTS;
     }
 
+    public boolean isAccountLocked(String email) {
+        String key = LOCKOUT_PREFIX + email;
+        Object status = redisUtil.get(key);
+        return "locked".equals(String.valueOf(status));
+    }
+
     public void recordFailedAttempt(String email) {
         String key = FAILED_ATTEMPTS_PREFIX + email;
         Object attemptsObj = redisUtil.get(key);
@@ -95,7 +108,13 @@ public class CaptchaService {
         int attempts = attemptsObj == null ? 0 : (Integer) attemptsObj;
         attempts++;
         
-        redisUtil.set(key, attempts, LOCKOUT_EXPIRE_SECONDS);
+        if (attempts >= MAX_FAILED_ATTEMPTS) {
+            // 达到最大失败次数，锁定账户
+            redisUtil.set(key, "locked", LOCKOUT_EXPIRE_SECONDS);
+            redisUtil.set(LOCKOUT_PREFIX + email, "locked", LOCKOUT_EXPIRE_SECONDS);
+        } else {
+            redisUtil.set(key, attempts, LOCKOUT_EXPIRE_SECONDS);
+        }
     }
 
     public void resetFailedAttempts(String email) {

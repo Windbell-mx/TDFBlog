@@ -40,16 +40,12 @@ export const getCoverImageUrl = (coverImage: string | null | undefined): string 
 
 // 上传头像
 export const uploadAvatar = async (userId: string, file: File): Promise<{ avatar: string }> => {
-  const token = localStorage.getItem('tech_forum_token');
-  
   const formData = new FormData();
   formData.append('file', file);
   
   const response = await fetch(`${UPLOAD_API_BASE_URL}/users/${userId}/avatar`, {
     method: 'POST',
-    headers: {
-      'Authorization': token ? `Bearer ${token}` : '',
-    },
+    credentials: 'include',
     body: formData,
   });
   
@@ -66,16 +62,12 @@ export const uploadAvatar = async (userId: string, file: File): Promise<{ avatar
 
 // 上传文章封面
 export const uploadCoverImage = async (file: File): Promise<{ url: string }> => {
-  const token = localStorage.getItem('tech_forum_token');
-  
   const formData = new FormData();
   formData.append('file', file);
   
   const response = await fetch(`${UPLOAD_API_BASE_URL}/articles/cover`, {
     method: 'POST',
-    headers: {
-      'Authorization': token ? `Bearer ${token}` : '',
-    },
+    credentials: 'include',
     body: formData,
   });
   

@@ -2,6 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { articleApi, collectionApi, getCurrentUserId, type Article as ApiArticle } from '../services/api';
 import ConfirmDialog from './ConfirmDialog';
 
+// 简单的 HTML 清理函数，移除危险的标签和属性
+function sanitizeHtml(html: string): string {
+  if (!html) return '';
+  // 移除 script、style、iframe、object、embed、form、input 等危险标签
+  let sanitized = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
+    .replace(/<form\b[^<]*(?:(?!<\/form>)<[^<]*)*<\/form>/gi, '')
+    // 移除所有 on* 事件处理器属性（onclick, onerror, onload 等）
+    .replace(/\s*on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+    // 移除 javascript: 协议
+    .replace(/href\s*=\s*"javascript:[^"]*"/gi, 'href="#"')
+    .replace(/href\s*=\s*'javascript:[^']*'/gi, "href='#'")
+    .replace(/href\s*=\s*javascript:[^\s>]*/gi, 'href="#"')
+    // 移除 style 属性中的 expression() 和 url()
+    .replace(/style\s*=\s*"([^"]*)"/gi, (_, value) => {
+      return `style="${value.replace(/expression\s*\(/gi, '').replace(/url\s*\(/gi, 'removed(')}"`;
+    })
+    .replace(/style\s*=\s*'([^']*)'/gi, (_, value) => {
+      return `style='${value.replace(/expression\s*\(/gi, '').replace(/url\s*\(/gi, 'removed(')}'`;
+    });
+  return sanitized;
+}
+
 interface ArticleDetailProps {
   article: ApiArticle;
   onBack: () => void;
@@ -192,7 +219,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onAuthor
           )}
         </div>
       </div>
-      <div className="article-detail-content" dangerouslySetInnerHTML={{ __html: article.content || '<p>无内容</p>' }} />
+      <div className="article-detail-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content || '<p>无内容</p>') }} />
       <ConfirmDialog
         isOpen={isDeleteConfirmOpen}
         title="确认删除"

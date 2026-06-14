@@ -6,7 +6,7 @@ import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import ToastManager from './components/ToastManager';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { isAuthenticated, clearToken } from './services/api';
+import { isAuthenticated, clearUser } from './services/api';
 
 interface Toast {
   id: string;
@@ -37,7 +37,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    clearToken();
+    clearUser();
     setIsLoggedIn(false);
   };
 

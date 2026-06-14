@@ -5,6 +5,8 @@ import com.techforum.backend.model.Article;
 import com.techforum.backend.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -17,7 +19,11 @@ public class NoteController {
     private ArticleService articleService;
 
     @PostMapping
-    public ResponseEntity<ArticleResponse> createNote(@RequestBody Article note) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ArticleResponse> createNote(
+            @RequestBody Article note,
+            Authentication authentication) {
+        note.setUserId(authentication.getName());
         note.setCategory("学习笔记");
         note.setCreatedAt(LocalDateTime.now());
         note.setUpdatedAt(LocalDateTime.now());
@@ -44,9 +50,17 @@ public class NoteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ArticleResponse> updateNote(@PathVariable Long id, @RequestBody Article note) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ArticleResponse> updateNote(
+            @PathVariable Long id,
+            @RequestBody Article note,
+            Authentication authentication) {
         Article existingNote = articleService.findEntityById(id);
         if (existingNote != null && "学习笔记".equals(existingNote.getCategory())) {
+            // 验证是否为笔记作者
+            if (!existingNote.getUserId().equals(authentication.getName())) {
+                return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+            }
             existingNote.setTitle(note.getTitle());
             existingNote.setContent(note.getContent());
             if (note.getTags() != null) {
@@ -62,11 +76,19 @@ public class NoteController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteNote(@PathVariable Long id) {
-        if (articleService.findById(id).isPresent()) {
-            articleService.deleteById(id);
-            return ResponseEntity.ok().build();
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> deleteNote(
+            @PathVariable Long id,
+            Authentication authentication) {
+        Article note = articleService.findEntityById(id);
+        if (note == null) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
+        // 验证是否为笔记作者
+        if (!note.getUserId().equals(authentication.getName())) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+        }
+        articleService.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 }
