@@ -92,6 +92,7 @@ async function request<T>(
                       url.includes('/users/forgot-password') || url.includes('/users/reset-password');
   const response = await fetch(`${API_BASE_URL}${url}`, {
     ...options,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       ...(token && !isPublicUrl && { 'Authorization': `Bearer ${token}` }),
@@ -149,7 +150,6 @@ export const userApi = {
       body: JSON.stringify(user),
       skipAuthRedirect: true,
     });
-    setToken(response.token);
     setUser(response.user);
     return response;
   },
@@ -160,7 +160,6 @@ export const userApi = {
       body: JSON.stringify(credentials),
       skipAuthRedirect: true,
     });
-    setToken(response.token);
     setUser(response.user);
     return response;
   },
@@ -178,6 +177,7 @@ export const userApi = {
 
     const response = await fetch(`${API_BASE_URL}/users/${id}/avatar`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         ...(token && { 'Authorization': `Bearer ${token}` }),
       },
@@ -303,9 +303,14 @@ export const articleApi = (() => {
     uploadCoverImage: (id: number, file: File) => {
       const formData = new FormData();
       formData.append('file', file);
+      const token = getToken();
 
       return fetch(`${API_BASE_URL}/articles/${id}/cover`, {
         method: 'POST',
+        credentials: 'include',
+        headers: {
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+        },
         body: formData,
       });
     },

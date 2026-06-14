@@ -16,6 +16,9 @@ import com.techforum.backend.util.MinioUtil;
 import com.techforum.backend.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -56,6 +59,9 @@ public class UserController {
     @Value("${app.security.cors.allowed-origin-patterns:http://localhost:*,https://localhost:*}")
     private String mediaBaseUrl;
 
+    @Value("${jwt.expiration:86400}")
+    private long jwtExpiration;
+
     private static final String USER_CACHE_KEY = "user:";
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -73,7 +79,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request, HttpServletRequest servletRequest) {
         Optional<User> existingUser = userService.findByEmail(request.getEmail());
         if (existingUser.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -88,11 +94,21 @@ public class UserController {
         User savedUser = userService.save(user);
         String token = jwtUtil.generateToken(savedUser.getId(), savedUser.getEmail());
 
-        return ResponseEntity.ok(new AuthResponse(token, convertToUserResponse(savedUser)));
+        ResponseCookie cookie = ResponseCookie.from("access_token", token)
+            .httpOnly(true)
+            .secure(servletRequest.isSecure())
+            .path("/")
+            .maxAge(jwtExpiration)
+            .sameSite("Lax")
+            .build();
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(new AuthResponse(token, convertToUserResponse(savedUser)));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRequest servletRequest) {
         String email = request.getEmail();
         String captchaToken = request.getCaptchaToken();
         boolean hasCaptchaToken = captchaToken != null && !captchaToken.isEmpty();
@@ -123,7 +139,18 @@ public class UserController {
             if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 captchaService.resetFailedAttempts(email);
                 String token = jwtUtil.generateToken(user.getId(), user.getEmail());
-                return ResponseEntity.ok(new AuthResponse(token, convertToUserResponse(user)));
+
+                ResponseCookie cookie = ResponseCookie.from("access_token", token)
+                    .httpOnly(true)
+                    .secure(servletRequest.isSecure())
+                    .path("/")
+                    .maxAge(jwtExpiration)
+                    .sameSite("Lax")
+                    .build();
+
+                return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(new AuthResponse(token, convertToUserResponse(user)));
             } else {
                 captchaService.recordFailedAttempt(email);
                 int failedAttempts = captchaService.getFailedAttempts(email);

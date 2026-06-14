@@ -26,7 +26,7 @@ public class ArticleService {
     private static final String ARTICLE_CACHE_KEY = "article:";
     private static final String ARTICLES_LIST_KEY = "articles:list";
     private static final String POPULAR_AUTHORS_KEY = "authors:popular";
-    private static final long CACHE_EXPIRY = 3600;
+    // private static final long CACHE_EXPIRY = 3600;
 
     public List<ArticleResponse> findAll(String sort) {
         // 从数据库获取
